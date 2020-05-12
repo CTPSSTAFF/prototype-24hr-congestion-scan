@@ -7,18 +7,17 @@ var cell_w = 10,
     cell_h = 10;
 
 var recs_per_hour = 6;
-var time_recs = recs_per_hour * 24;
+var num_time_recs = recs_per_hour * 24;
 var minutes_per_rec = 10;
 
 // Placholder; should be filled in for real when TMC data is read.
 var num_tmcs = 100;
 
 var left_margin = 170,
-    top_margin = 0; // for now
+    top_margin = 20; // for now
 
-var w = left_margin + (cell_w * time_recs),
-    h = cell_h * num_tmcs;
-	
+var w = left_margin + (cell_w * num_time_recs),
+    h = top_margin + (cell_h * num_tmcs);
 
 // Function to return color for viz, based on speed in input data record.
 // Special case: need to test for missing value in input data.
@@ -40,6 +39,15 @@ var speed_scale = function(d) {
 	}
 	return retval;
 } // speed_scale()
+
+// Dev - time scale
+// Use 24 hours beginning January 1, 1900 as reference point
+var timeScale = d3.scaleTime()
+					.domain([new Date(1900, 0, 1, 0, 0), new Date(1900, 0, 1, 23, 50)])
+					.range([0, cell_w * num_time_recs]);					
+var xAxis = d3.axisTop()
+				.scale(timeScale)
+				.tickFormat(d3.timeFormat("%I %p"));
 
 // Utility function used when parsing speed data
 //
@@ -64,7 +72,7 @@ function generate_viz() {
 				
 	var label_g = svg.append("g")
 					.attr("id", "labels")
-					.attr("transform", "translate(0,0)");
+					.attr("transform", "translate(0," + top_margin + ")");
 					
 	label_g.selectAll("text.tmc_label")
 		.data(tmc_data)
@@ -79,7 +87,7 @@ function generate_viz() {
 			
 	var grid_g = svg.append("g")
 					.attr("id", "grid")
-					.attr("transform", "translate(" + left_margin + ",0)");
+					.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
 						
 	grid_g.selectAll("rect.cell")
 		.data(speed_data)
@@ -103,7 +111,27 @@ function generate_viz() {
 			.attr("fill", function(d,i){ return speed_scale(d); })
 		// The following is temporary, for use during development
 		.append("title")
-			.text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
+			// .text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
+			.text(function(d,i) { var tmp; tmp =  d.time['hr'] + ':' + d.time['min']; return tmp; });
+			
+	svg.append("g")
+		.attr("class", "axis")
+		.call(xAxis)
+		// .attr("transform", "translate(" + left_margin + ",0)");
+		.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
+		
+	// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
+	// not supporting rendering hour values between 01 and 09 without the leading zero.
+	// C'mon, Mike - this would be an easy one to implement on your end.
+	var xTickLabels = $('.axis text');
+	var i,curText, newText;
+	for (i = 0; i < xTickLabels.length; i++) {
+		curText = $(xTickLabels[i]).html();
+		if (curText[0] === '0') {
+			newText = curText.replace('0', ' ');
+			$(xTickLabels[i]).html(newText);
+		}
+	}
 
 } //  generate_viz()
 
