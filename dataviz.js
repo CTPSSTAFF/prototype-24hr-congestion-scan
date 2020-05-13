@@ -5,16 +5,17 @@ speed_data = [];
 // Globals used to generate the data viz
 var cell_w = 10,
     cell_h = 10;
-
+	
+// Pseudo-constants
 var recs_per_hour = 6;
 var num_time_recs = recs_per_hour * 24;
 var minutes_per_rec = 10;
 
-// Placholder; should be filled in for real when TMC data is read.
+// Placholder; should be filled in for real when TMC data is read in
 var num_tmcs = 100;
 
 var left_margin = 170,
-    top_margin = 20; // for now
+    top_margin = 20; 
 
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
@@ -40,13 +41,15 @@ var speed_scale = function(d) {
 	return retval;
 } // speed_scale()
 
-// Dev - time scale
+// Time scale for x-axis
 // Use 24 hours beginning January 1, 1900 as reference point
 var timeScale = d3.scaleTime()
 					.domain([new Date(1900, 0, 1, 0, 0), new Date(1900, 0, 1, 23, 50)])
-					.range([0, cell_w * num_time_recs]);					
+					.range([0, cell_w * num_time_recs]);
+// X-axis - see comment in code below labeled "NOTE"					
 var xAxis = d3.axisTop()
 				.scale(timeScale)
+				.ticks(24)
 				.tickFormat(d3.timeFormat("%I %p"));
 
 // Utility function used when parsing speed data
@@ -62,18 +65,18 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
-// Function to generate the data viz.
+// Function to generate the data viz
 //
 function generate_viz() {
 	var svg = d3.select("#viz_div")
 				.append("svg")
 				.attr("width", w)
 				.attr("height", h);
-				
+
 	var label_g = svg.append("g")
 					.attr("id", "labels")
 					.attr("transform", "translate(0," + top_margin + ")");
-					
+
 	label_g.selectAll("text.tmc_label")
 		.data(tmc_data)
 		.enter()
@@ -117,12 +120,11 @@ function generate_viz() {
 	svg.append("g")
 		.attr("class", "axis")
 		.call(xAxis)
-		// .attr("transform", "translate(" + left_margin + ",0)");
 		.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
-		
+	// NOTE:
 	// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
-	// not supporting rendering hour values between 01 and 09 without the leading zero.
-	// C'mon, Mike - this would be an easy one to implement on your end.
+	// not supporting rendering hour values between 1 and 9 without a leading zero.
+	// C'mon, Mike - this would be an easy one to implement on your end, wouldn't it?
 	var xTickLabels = $('.axis text');
 	var i,curText, newText;
 	for (i = 0; i < xTickLabels.length; i++) {
