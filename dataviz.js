@@ -206,7 +206,7 @@ function initialize_for_route(route) {
 	// Cache current_route; needed in initialize_for_date when opening speed data file
 	current_route = route;
 	
-	var csv_fn = "data/" + route + "_tmcs.csv";
+	var csv_fn = "data/tmc/" + route + "_tmcs.csv";
 	d3.csv(csv_fn, function(d) {
 	return {
 		tmc : 		d.tmc,
@@ -241,7 +241,7 @@ function initialize_for_route(route) {
 // Parameter: date - date in <yyyy>-<mm>-<dd> format, e.g., '2020-03-13'
 // Summary: load speed data for specified date, and generate speed viz in LHS of viz
 function initialize_for_date(date) {
-	var csv_fn = "data/" + current_route + "_" + date + ".csv";
+	var csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
 	
 	d3.csv(csv_fn, function(d) {
 		return {
