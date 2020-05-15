@@ -2,12 +2,26 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>D3 Sandbox</title>
+		<title>24-hour Congestion Visualization</title>
+		<link rel="stylesheet" href="dataviz.css"/>
 		<script src="libs/jquery.min-3.5.1.js"></script>
 		<script src="libs/lodash.js"></script>
 		<script src="libs/d3.js"></script>
 	</head>
 	<body>
+		<h2>24-hour Congestion Visualization</h2>
+		<div id="options">
+			<span>
+				Select route:&nbsp;
+				<select id="select_route">
+					 <option value="0">Select a route</option> 
+				</select>&nbsp;&nbsp;
+				Select date:&nbsp;
+				<select id="select_date">
+					<option value="0">Select a date</option> 
+				</select>
+			</span>
+		</div>
 		<div id="viz_div"></div>
 		<script src="dataviz.js"></script>
 	</body>
