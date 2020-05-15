@@ -1,7 +1,9 @@
 // Data stores for TMC and speed data read in
-var tmc_data = [];
-var speed_data = [];
-var current_route = '';
+var tmc_data = [],
+    speed_data = [];
+var current_route = '',
+    current_date = '';
+	
 // Placholder value - populated with actual number of TMCs for route by initialize_for_route
 var num_tmcs = 100;
 
@@ -94,6 +96,11 @@ function initialize_for_route(route) {
 		tmc_data = data;
 		num_tmcs = tmc_data.length;
 		
+		// Remove group containing the labels for the previous route, if there was one.
+		if ($('#viz_div #labels').length > 0) {
+			$('#viz_div #labels').remove();
+		}
+		
 		var label_g = svg.append("g")
 					.attr("id", "labels")
 					.attr("transform", "translate(0," + top_margin + ")");
@@ -101,13 +108,14 @@ function initialize_for_route(route) {
 		label_g.selectAll("text.tmc_label")
 			.data(tmc_data)
 			.enter()
-			.append("text")
-				.attr("class", "tmc_label")
-				.attr("x", 0)
-				.attr("y", function(d, i) { return d.seq_num * cell_h; })
-				.attr("text-anchor", "start")
-				.attr("font-size", 10)
-				.text(function(d, i) { return d.seg_begin; });
+				.append("text")
+					.attr("class", "tmc_label")
+					.attr("x", 0)
+					.attr("y", function(d, i) { return d.seq_num * cell_h; })
+					.attr("text-anchor", "start")
+					.attr("font-size", 10)
+					.text(function(d, i) { return d.seg_begin; });
+
 	});
 } // initialize_for_route()
 
@@ -133,18 +141,26 @@ function initialize_for_date(date) {
 			// the data retreived from RITIS doesn't merely have records with NULL speed
 			// data values, but actually may be MISSING records for some time periods entirely.
 			// Yeech! 05/15/2020
-			var background_g = svg.append("g")
-				.attr("id", "background")
-				.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
-				.append("rect")
-					.attr("class", "background")
-					.attr("x", 0)
-					.attr("y", 0)
-					.attr("width", w)
-					.attr("height", h)
-					.attr("fill", "#e6e6e6");
+			
+			if ($('#viz_div #background').length === 0) {
+				var background_g = svg.append("g")
+					.attr("id", "background")
+					.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+					.append("rect")
+						.attr("class", "background")
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("width", w)
+						.attr("height", h)
+						.attr("fill", "#e6e6e6");
+			}
+			
+			// Remove group containing the speed grid for the previous day, if there was one.
+			if ($('#viz_div #grid').length > 0) {
+				$('#viz_div #grid').remove();
+			}
 
-			// Grid in which the speed data is displayed.
+			// Grid in which the speed data for the new day is displayed
 			var grid_g = svg.append("g")
 				.attr("id", "grid")
 				.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
@@ -162,6 +178,8 @@ function initialize_for_date(date) {
 						})
 					.attr("y", function(d,i) { 
 								var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+								//
+								// console.log('tmc: ' + d.tmc + ' seq_num = ' + tmc_rec['seq_num']);
 								var tmc_seq = tmc_rec['seq_num'];
 								var tmp = tmc_seq * cell_h;
 								return tmp;
@@ -177,12 +195,60 @@ function initialize_for_date(date) {
 } // initialize_for_date()
 
 // Function: initialize
-// Summary: Initialize the app: populate combo boxes, generate SVG framework, and X-axis
+// Summary: read configuration file, populate select boxes and define event handers for them,
+//          generate SVG framework, and X-axis
 function initialize() {
 	d3.json("config.json").then(function(config) {
+		// Populate the <select> box for route
+        var i, oSelect, oOption;
+        oSelect = document.getElementById("select_route");
+        for (i = 0; i < config.routes.length; i++) {
+            oOption = document.createElement("OPTION");
+            oOption.value = config.routes[i].value;
+            oOption.text = config.routes[i].text;
+			if (config.routes[i].selected === true) {
+					oOption.selected = true;
+			}
+            oSelect.options.add(oOption); 
+        }
+		// Populate the <select> box for date
+        oSelect = document.getElementById("select_date");
+        for (i = 0; i < config.dates.length; i++) {
+            oOption = document.createElement("OPTION");
+            oOption.value = config.dates[i].value;
+            oOption.text = config.dates[i].text;
+			if (config.dates[i].selected === true) {
+					oOption.selected = true;
+			}
+			oSelect.options.add(oOption);
+        }
 		
-		var _DEBUG_HOOK = 0;
+		// Define event handlers for select boxes
+		$('#select_route').change(function(e) {
+			var route, date;
+			route = $("#select_route option:selected").attr('value');
+			if (route != current_route) {
+				current_route = route;
+				initialize_for_route(route);
+				date = $("#select_date option:selected").attr('value');
+				initialize_for_date(date);
+			} else {
+				return;
+			}
+		});
 		
+		$('#select_date').change( function(e) {
+			var date;
+			date = $("#select_date option:selected").attr('value');
+			if (date != current_date) {
+				current_date = date;
+				initialize_for_date(date);
+			} else {
+				return;
+			}
+		});
+		
+		// Generate SVG framework and (invariant) X-axis
 		svg = d3.select("#viz_div")
 			.append("svg")
 			.attr("width", w)
@@ -206,9 +272,9 @@ function initialize() {
 			}
 		}
 		
-		initialize_for_route("i93_nb");
+		// And kick things off with the viz for I-93 NB on 8 March, 2020:
+		initialize_for_route('i93_nb');
 		initialize_for_date('2020-03-08');
-	
 	});
 	
 } // initialize()
