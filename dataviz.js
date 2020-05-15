@@ -2,6 +2,8 @@
 var tmc_data = [];
 var speed_data = [];
 var current_route = '';
+// Placholder value - populated with actual number of TMCs for route by initialize_for_route
+var num_tmcs = 100;
 
 // Globals used to generate the data viz
 // SVG object containing entire viz
@@ -11,10 +13,10 @@ var cell_w = 10,
 var recs_per_hour = 6;
 var num_time_recs = recs_per_hour * 24;
 var minutes_per_rec = 10;
-// Placholder; num_tmcs should be filled in for real when TMC data is read in
-var num_tmcs = 100;
+
 var left_margin = 170,
-    top_margin = 20; 
+    top_margin = 20,
+	top_margin_for_x_axis = 19; 
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
@@ -199,8 +201,11 @@ d3.csv("data/i93_nb_tmcs.csv", function(d) {
 */
 
 // Function: initialize_for_route
+//
 // Parameter: route - name of route in <route_system><route_number>_<route_direction> format, 
 //            e.g., 'i93_nb'
+// Side effects: updates global variables  'current_route', 'tmc_data', and 'num_tmcs'
+//
 // Summary: load TMC data for specified route, and generate TMC labels in RHS of viz
 function initialize_for_route(route) {
 	// Cache current_route; needed in initialize_for_date when opening speed data file
@@ -219,6 +224,7 @@ function initialize_for_route(route) {
 	};
 	}).then(function(data) {
 		tmc_data = data;
+		num_tmcs = tmc_data.length;
 		
 		var label_g = svg.append("g")
 					.attr("id", "labels")
@@ -238,7 +244,10 @@ function initialize_for_route(route) {
 } // initialize_for_route()
 
 // Function: initialize_for_date
+//
 // Parameter: date - date in <yyyy>-<mm>-<dd> format, e.g., '2020-03-13'
+// Side effects: updates global variable 'speed_data'
+//
 // Summary: load speed data for specified date, and generate speed viz in LHS of viz
 function initialize_for_date(date) {
 	var csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
@@ -252,10 +261,26 @@ function initialize_for_date(date) {
 		}).then(function(data) {
 			speed_data = data;
 			
+			// The "background" group has been introduced to deal with cases in which
+			// the data retreived from RITIS doesn't merely have records with NULL speed
+			// data values, but actually may be MISSING records for some time periods entirely.
+			// Yeech! 05/15/2020
+			var background_g = svg.append("g")
+				.attr("id", "background")
+				.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+				.append("rect")
+					.attr("class", "background")
+					.attr("x", 0)
+					.attr("y", 0)
+					.attr("width", w)
+					.attr("height", h)
+					.attr("fill", "#e6e6e6");
+
+			// Grid in which the speed data is displayed.
 			var grid_g = svg.append("g")
-			.attr("id", "grid")
-			.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
-						
+				.attr("id", "grid")
+				.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
+	
 			grid_g.selectAll("rect.cell")
 				.data(speed_data)
 				.enter()
@@ -294,7 +319,7 @@ function initialize() {
 	svg.append("g")
 		.attr("class", "axis")
 		.call(xAxis)
-		.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
+		.attr("transform", "translate(" + left_margin + "," + top_margin_for_x_axis + ")");
 	// NOTE:
 	// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
 	// not supporting rendering hour values between 1 and 9 without a leading zero.
@@ -310,7 +335,7 @@ function initialize() {
 	}
 	
 	initialize_for_route("i93_nb");
-	initialize_for_date('2020-03-13');
+	initialize_for_date('2020-03-08');
 	
 } // initialize()
 
