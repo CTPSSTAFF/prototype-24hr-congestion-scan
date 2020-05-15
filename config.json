@@ -4,8 +4,8 @@
 					{	"value"	:	"i93_sb",	"text"	:	"I-93 Southbound",	"selected"	: 	false },
 					{	"value"	:	"i95_nb",	"text"	:	"I-95 Northbound",	"selected"	: 	false },
 					{	"value"	:	"i95_sb",	"text"	:	"I-95 Southbound",	"selected"	: 	false },
-					{	"value"	:	"i495_nb",	"text"	:	"I-495 Northbound"	"selected"	: 	false },
-					{	"value"	:	"i495_sb",	"text"	:	"I-495 Southbound"	"selected"	: 	false }
+					{	"value"	:	"i495_nb",	"text"	:	"I-495 Northbound",	"selected"	: 	false },
+					{	"value"	:	"i495_sb",	"text"	:	"I-495 Southbound",	"selected"	: 	false }
 				],
 	"dates" :	[ 	{	"value"	:	"2020-03-08",	"text"	:	"March 8, 2020",	"selected"	:	true },
 					{	"value"	:	"2020-03-09",	"text"	:	"March 9, 2020",	"selected"	: 	false },
