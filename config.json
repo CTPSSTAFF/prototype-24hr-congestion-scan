@@ -1,6 +1,6 @@
-{ 	"routes" : 	[ 	{	"value"	:	"i90_eb", 	"text"	:	"I-90 Eastbound",	"selected"	: 	true },
+{ 	"routes" : 	[ 	{	"value"	:	"i90_eb", 	"text"	:	"I-90 Eastbound",	"selected"	: 	false },
 					{	"value" :	"i90_wb", 	"text"	:	"I-90 Westbound",	"selected"	: 	false },
-					{	"value"	:	"i93_nb", 	"text"	:	"I-93 Northbound",	"selected"	: 	false },
+					{	"value"	:	"i93_nb", 	"text"	:	"I-93 Northbound",	"selected"	: 	true },
 					{	"value"	:	"i93_sb",	"text"	:	"I-93 Southbound",	"selected"	: 	false },
 					{	"value"	:	"i95_nb",	"text"	:	"I-95 Northbound",	"selected"	: 	false },
 					{	"value"	:	"i95_sb",	"text"	:	"I-95 Southbound",	"selected"	: 	false },
