@@ -5,7 +5,7 @@
 					{	"value"	:	"i95_nb",	"text"	:	"I-95 Northbound" },
 					{	"value"	:	"i95_sb",	"text"	:	"I-95 Southbound" },
 					{	"value"	:	"i495_nb",	"text"	:	"I-495 Northbound" },
-					{	"value"	:	"i495_sb" 	"text"	:	"I-495 Southbound" }
+					{	"value"	:	"i495_sb",	"text"	:	"I-495 Southbound" }
 				],
 	"dates" :	[ 	{	"value"	:	"2020-03-08",	"text"	:	"March 8, 2020" },
 					{	"value"	:	"2020-03-09",	"text"	:	"March 9, 2020" },
@@ -20,6 +20,6 @@
 					{	"value"	:	"2020-03-18",	"text"	:	"March 18, 2020" },
 					{	"value"	:	"2020-03-19",	"text"	:	"March 19, 2020" },
 					{	"value"	:	"2020-03-20",	"text"	:	"March 20, 2020" },
-					{	"value"	:	"2020-03-21" 	"text"	:	"March 21, 2020" }
+					{	"value"	:	"2020-03-21", 	"text"	:	"March 21, 2020" }
 				]
 }
