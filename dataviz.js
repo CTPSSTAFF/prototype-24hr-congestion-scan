@@ -67,138 +67,6 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
-// Function to generate the data viz
-//
-function generate_viz() {
-	svg = d3.select("#viz_div")
-			.append("svg")
-			.attr("width", w)
-			.attr("height", h);
-
-	var label_g = svg.append("g")
-					.attr("id", "labels")
-					.attr("transform", "translate(0," + top_margin + ")");
-
-	label_g.selectAll("text.tmc_label")
-		.data(tmc_data)
-		.enter()
-		.append("text")
-			.attr("class", "tmc_label")
-			.attr("x", 0)
-			.attr("y", function(d, i) { return d.seq_num * cell_h; })
-			.attr("text-anchor", "start")
-			.attr("font-size", 10)
-			.text(function(d, i) { return d.seg_begin; });
-			
-	var grid_g = svg.append("g")
-					.attr("id", "grid")
-					.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
-						
-	grid_g.selectAll("rect.cell")
-		.data(speed_data)
-		.enter()
-		.append("rect")
-			.attr("class", "cell")
-			.attr("x", function(d,i) { 
-					var hr = d.time['hr'], min = d.time['min'];
-					var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
-					// console.log('x = ' + tmp +  '    time: hour = ' + hr + ' min = ' + min);
-					return tmp;
-				})
-			.attr("y", function(d,i) { 
-						var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-						var tmc_seq = tmc_rec['seq_num'];
-						var tmp = tmc_seq * cell_h;
-						return tmp;
-					})
-			.attr("width", cell_w)
-			.attr("height", cell_h)
-			.attr("fill", function(d,i){ return speed_scale(d); })
-		// The following is temporary, for use during development
-		.append("title")
-			// .text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
-			.text(function(d,i) { var tmp; tmp =  d.time['hr'] + ':' + d.time['min']; return tmp; });
-			
-	svg.append("g")
-		.attr("class", "axis")
-		.call(xAxis)
-		.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
-	// NOTE:
-	// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
-	// not supporting rendering hour values between 1 and 9 without a leading zero.
-	// C'mon, Mike - this would be an easy one to implement on your end, wouldn't it?
-	var xTickLabels = $('.axis text');
-	var i,curText, newText;
-	for (i = 0; i < xTickLabels.length; i++) {
-		curText = $(xTickLabels[i]).html();
-		if (curText[0] === '0') {
-			newText = curText.replace('0', ' ');
-			$(xTickLabels[i]).html(newText);
-		}
-	}
-
-} //  generate_viz()
-
-/*
-// Execution starts here:
-// 		Kick things off by loading the TMC data;
-// 		when this has completed, load the speed data;
-// 		when that has completed, generate the viz.
-//
-d3.csv("data/i93_nb_tmcs.csv", function(d) {
-	return {
-		tmc : 		d.tmc,
-		seq_num:	+d.seq_num,
-		from_meas:	parseFloat(d.from_meas),
-		distance:	parseFloat(d.distance),
-		seg_begin:	d.seg_begin,
-		seg_end:	d.seg_end,
-		spd_limit:	+d.spd_limit
-	};
-}).then(function(data) {
-	tmc_data = data;
-
-	// Now load the speed data
-	d3.csv("data/i93_nb_2020-03-13.csv", function(d) {
-		return {
-			tmc : 	d.tmc,
-			time: 	get_time_from_timestamp(d.tstamp),
-			speed:	parseFloat(d.speed)
-		};
-	}).then(function(data) {
-		speed_data = data;
-		
-		var grid_g = svg.append("g")
-				.attr("id", "grid")
-				.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
-						
-		grid_g.selectAll("rect.cell")
-			.data(speed_data)
-			.enter()
-			.append("rect")
-				.attr("class", "cell")
-				.attr("x", function(d,i) { 
-						var hr = d.time['hr'], min = d.time['min'];
-						var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
-						// console.log('x = ' + tmp +  '    time: hour = ' + hr + ' min = ' + min);
-						return tmp;
-					})
-				.attr("y", function(d,i) { 
-							var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-							var tmc_seq = tmc_rec['seq_num'];
-							var tmp = tmc_seq * cell_h;
-							return tmp;
-						})
-				.attr("width", cell_w)
-				.attr("height", cell_h)
-				.attr("fill", function(d,i){ return speed_scale(d); })
-			// The following is temporary, for use during development
-			.append("title")
-				// .text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
-				.text(function(d,i) { var tmp; tmp =  d.time['hr'] + ':' + d.time['min']; return tmp; });
-	});
-});
-*/
 
 // Function: initialize_for_route
 //
@@ -311,31 +179,37 @@ function initialize_for_date(date) {
 // Function: initialize
 // Summary: Initialize the app: populate combo boxes, generate SVG framework, and X-axis
 function initialize() {
-	svg = d3.select("#viz_div")
-		.append("svg")
-		.attr("width", w)
-		.attr("height", h);
+	d3.json("config.json").then(function(config) {
+		
+		var _DEBUG_HOOK = 0;
+		
+		svg = d3.select("#viz_div")
+			.append("svg")
+			.attr("width", w)
+			.attr("height", h);
 
-	svg.append("g")
-		.attr("class", "axis")
-		.call(xAxis)
-		.attr("transform", "translate(" + left_margin + "," + top_margin_for_x_axis + ")");
-	// NOTE:
-	// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
-	// not supporting rendering hour values between 1 and 9 without a leading zero.
-	// C'mon, Mike - this would be an easy one to implement on your end, wouldn't it?
-	var xTickLabels = $('.axis text');
-	var i,curText, newText;
-	for (i = 0; i < xTickLabels.length; i++) {
-		curText = $(xTickLabels[i]).html();
-		if (curText[0] === '0') {
-			newText = curText.replace('0', ' ');
-			$(xTickLabels[i]).html(newText);
+		svg.append("g")
+			.attr("class", "axis")
+			.call(xAxis)
+			.attr("transform", "translate(" + left_margin + "," + top_margin_for_x_axis + ")");
+		// NOTE:
+		// The following grotesque - and hardly robust - hack is a work-around for d3.formatTime() 
+		// not supporting rendering hour values between 1 and 9 *without* a leading zero.
+		// C'mon, Mike - this would be an easy one to implement on your end, wouldn't it?
+		var xTickLabels = $('.axis text');
+		var i,curText, newText;
+		for (i = 0; i < xTickLabels.length; i++) {
+			curText = $(xTickLabels[i]).html();
+			if (curText[0] === '0') {
+				newText = curText.replace('0', ' ');
+				$(xTickLabels[i]).html(newText);
+			}
 		}
-	}
+		
+		initialize_for_route("i93_nb");
+		initialize_for_date('2020-03-08');
 	
-	initialize_for_route("i93_nb");
-	initialize_for_date('2020-03-08');
+	});
 	
 } // initialize()
 
