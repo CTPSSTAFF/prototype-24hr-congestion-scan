@@ -18,7 +18,8 @@ var minutes_per_rec = 10;
 
 var left_margin = 170,
     top_margin = 20,
-	top_margin_for_x_axis = 19; 
+	top_margin_for_x_axis = 19,
+	top_margin_for_labels = 25;
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
@@ -69,7 +70,6 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
-
 // Function: initialize_for_route
 //
 // Parameter: route - name of route in <route_system><route_number>_<route_direction> format, 
@@ -88,6 +88,7 @@ function initialize_for_route(route) {
 		seq_num:	+d.seq_num,
 		from_meas:	parseFloat(d.from_meas),
 		distance:	parseFloat(d.distance),
+		firstnm:	d.firstnm,
 		seg_begin:	d.seg_begin,
 		seg_end:	d.seg_end,
 		spd_limit:	+d.spd_limit
@@ -96,6 +97,11 @@ function initialize_for_route(route) {
 		tmc_data = data;
 		num_tmcs = tmc_data.length;
 		
+		// Reset the height of the SVG element to reflect the number of TMCS in the route
+		var newHeight = top_margin + (cell_h * num_tmcs)
+		var domElt = $('#viz_svg')[0];
+		domElt.setAttribute("height", newHeight);
+		
 		// Remove group containing the labels for the previous route, if there was one.
 		if ($('#viz_div #labels').length > 0) {
 			$('#viz_div #labels').remove();
@@ -103,7 +109,7 @@ function initialize_for_route(route) {
 		
 		var label_g = svg.append("g")
 					.attr("id", "labels")
-					.attr("transform", "translate(0," + top_margin + ")");
+					.attr("transform", "translate(0," + top_margin_for_labels + ")");
 
 		label_g.selectAll("text.tmc_label")
 			.data(tmc_data)
@@ -112,9 +118,10 @@ function initialize_for_route(route) {
 					.attr("class", "tmc_label")
 					.attr("x", 0)
 					.attr("y", function(d, i) { return d.seq_num * cell_h; })
+					.attr("height", cell_h)
 					.attr("text-anchor", "start")
 					.attr("font-size", 10)
-					.text(function(d, i) { return d.seg_begin; });
+					.text(function(d, i) { return d.firstnm; });
 
 	});
 } // initialize_for_route()
@@ -137,7 +144,7 @@ function initialize_for_date(date) {
 		}).then(function(data) {
 			speed_data = data;
 			
-			// The "background" group has been introduced to deal with cases in which
+			// The "background" rect has been introduced to deal with cases in which
 			// the data retreived from RITIS doesn't merely have records with NULL speed
 			// data values, but actually may be MISSING records for some time periods entirely.
 			// Yeech! 05/15/2020
@@ -151,7 +158,7 @@ function initialize_for_date(date) {
 						.attr("x", 0)
 						.attr("y", 0)
 						.attr("width", w)
-						.attr("height", h)
+						.attr("height", top_margin + (cell_h * num_tmcs))
 						.attr("fill", "#e6e6e6");
 			}
 			
@@ -251,6 +258,7 @@ function initialize() {
 		// Generate SVG framework and (invariant) X-axis
 		svg = d3.select("#viz_div")
 			.append("svg")
+			.attr("id", "viz_svg")
 			.attr("width", w)
 			.attr("height", h);
 
