@@ -70,6 +70,9 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
+
+// ********************** THE FOLLOWING ROUTINE IS A FOSSIL *************************
+//
 // Function: initialize_for_route
 //
 // Parameter: route - name of route in <route_system><route_number>_<route_direction> format, 
@@ -126,6 +129,8 @@ function initialize_for_route(route) {
 	});
 } // initialize_for_route()
 
+// ********************** THE FOLLOWING ROUTINE IS A FOSSIL *************************
+//
 // Function: initialize_for_date
 //
 // Parameter: date - date in <yyyy>-<mm>-<dd> format, e.g., '2020-03-13'
@@ -201,6 +206,119 @@ function initialize_for_date(date) {
 	});
 } // initialize_for_date()
 
+function generate_viz(route, date) {
+	current_route = route;
+	var tmc_csv_fn = "data/tmc/" + route + "_tmcs.csv";
+	d3.csv(tmc_csv_fn, function(d) {
+	return {
+		tmc : 		d.tmc,
+		seq_num:	+d.seq_num,
+		from_meas:	parseFloat(d.from_meas),
+		distance:	parseFloat(d.distance),
+		firstnm:	d.firstnm,
+		seg_begin:	d.seg_begin,
+		seg_end:	d.seg_end,
+		spd_limit:	+d.spd_limit
+	};
+	}).then(function(data) {
+		tmc_data = data;
+		num_tmcs = tmc_data.length;
+		
+		// Set the height of the SVG element to reflect the number of TMCS in the route
+		var newHeight = top_margin + (cell_h * num_tmcs)
+		var domElt = $('#viz_svg')[0];
+		domElt.setAttribute("height", newHeight);
+		
+		// Remove group containing the labels for the previous route, if there was one.
+		if ($('#viz_div #labels').length > 0) {
+			$('#viz_div #labels').remove();
+		}
+		
+		var label_g = svg.append("g")
+					.attr("id", "labels")
+					.attr("transform", "translate(0," + top_margin_for_labels + ")");
+
+		label_g.selectAll("text.tmc_label")
+			.data(tmc_data)
+			.enter()
+				.append("text")
+					.attr("class", "tmc_label")
+					.attr("x", 0)
+					.attr("y", function(d, i) { return d.seq_num * cell_h; })
+					.attr("height", cell_h)
+					.attr("text-anchor", "start")
+					.attr("font-size", 10)
+					.text(function(d, i) { return d.firstnm; });
+					
+		var speed_csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
+	
+		d3.csv(speed_csv_fn, function(d) {
+			return {
+				tmc : 	d.tmc,
+				time: 	get_time_from_timestamp(d.tstamp),
+				speed:	parseFloat(d.speed)
+				};
+			}).then(function(data) {
+				speed_data = data;
+				
+				// The "background" rect has been introduced to deal with cases in which
+				// the data retreived from RITIS doesn't merely have records with NULL speed
+				// data values, but actually may be MISSING records for some time periods entirely.
+				// Yeech! 05/15/2020
+				
+				if ($('#viz_div #background').length === 0) {
+					var background_g = svg.append("g")
+						.attr("id", "background")
+						.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+						.append("rect")
+							.attr("class", "background")
+							.attr("x", 0)
+							.attr("y", 0)
+							.attr("width", w)
+							.attr("height", top_margin + (cell_h * num_tmcs))
+							.attr("fill", "#e6e6e6");
+				}
+				
+				// Remove group containing the speed grid for the previous day, if there was one.
+				if ($('#viz_div #grid').length > 0) {
+					$('#viz_div #grid').remove();
+				}
+
+				// Grid in which the speed data for the new day is displayed
+				var grid_g = svg.append("g")
+					.attr("id", "grid")
+					.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
+		
+				grid_g.selectAll("rect.cell")
+					.data(speed_data)
+					.enter()
+					.append("rect")
+						.attr("class", "cell")
+						.attr("x", function(d,i) { 
+								var hr = d.time['hr'], min = d.time['min'];
+								var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
+								// console.log('x = ' + tmp +  '    time: hour = ' + hr + ' min = ' + min);
+								return tmp;
+							})
+						.attr("y", function(d,i) { 
+									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+									//
+									// console.log('tmc: ' + d.tmc + ' seq_num = ' + tmc_rec['seq_num']);
+									var tmc_seq = tmc_rec['seq_num'];
+									var tmp = tmc_seq * cell_h;
+									return tmp;
+								})
+						.attr("width", cell_w)
+						.attr("height", cell_h)
+						.attr("fill", function(d,i){ return speed_scale(d); })
+					// The following is temporary, for use during development
+					.append("title")
+						// .text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
+						.text(function(d,i) { var tmp; tmp =  d.time['hr'] + ':' + d.time['min']; return tmp; });
+		});
+	});
+} // generate_viz()
+
 // Function: initialize
 // Summary: read configuration file, populate select boxes and define event handers for them,
 //          generate SVG framework, and X-axis
@@ -234,25 +352,19 @@ function initialize() {
 		$('#select_route').change(function(e) {
 			var route, date;
 			route = $("#select_route option:selected").attr('value');
-			if (route != current_route) {
-				current_route = route;
-				initialize_for_route(route);
-				date = $("#select_date option:selected").attr('value');
-				initialize_for_date(date);
-			} else {
-				return;
-			}
+			current_route = route;
+			date = $("#select_date option:selected").attr('value');
+			current_date = date;
+			generate_viz(route, date);
 		});
 		
 		$('#select_date').change( function(e) {
-			var date;
+			var route, date;
+			route = $("#select_route option:selected").attr('value');
+			current_route = route;
 			date = $("#select_date option:selected").attr('value');
-			if (date != current_date) {
-				current_date = date;
-				initialize_for_date(date);
-			} else {
-				return;
-			}
+			current_date = date;
+			generate_viz(route, date);
 		});
 		
 		// Generate SVG framework and (invariant) X-axis
@@ -281,8 +393,7 @@ function initialize() {
 		}
 		
 		// And kick things off with the viz for I-93 NB on 8 March, 2020:
-		initialize_for_route('i93_nb');
-		initialize_for_date('2020-03-08');
+		generate_viz('i93_nb', '2020-03-08');
 	});
 	
 } // initialize()
