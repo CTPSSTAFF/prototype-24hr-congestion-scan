@@ -64,6 +64,7 @@ var speed_scale = function(d) {
 // Return object with hour and minute, both as integers.
 //
 function get_time_from_timestamp(tstamp) {
+	var hms, hr, min;
 	hms = tstamp.split(' ')[1].split(':');
 	hr = +hms[0];
 	min = +hms[1];
@@ -126,20 +127,17 @@ function generate_viz(route, date) {
 			}).then(function(data) {
 				speed_data = data;
 				
-				// The "background" rect has been introduced to deal with cases in which
-				// the data retreived from RITIS doesn't merely have records with NULL speed
-				// data values, but actually may be MISSING records for some time periods entirely.
-				// Yeech! 05/15/2020
-				
-				if ($('#viz_div #background').length === 0) {
+				// There are no data records for the time period between 0200 and 0300 
+				// on the day on which daylight savings time begins: 8 March 2020.
+				if ((date === '2020-03-08') && $('#viz_div #dst_filler').length === 0) {
 					var background_g = svg.append("g")
-						.attr("id", "background")
+						.attr("id", "dst_filler")
 						.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
 						.append("rect")
-							.attr("class", "background")
-							.attr("x", 0)
+							.attr("class", "dst_filler")
+							.attr("x", recs_per_hour*2*cell_w)
 							.attr("y", 0)
-							.attr("width", w)
+							.attr("width", recs_per_hour*cell_w)
 							.attr("height", top_margin + (cell_h * num_tmcs))
 							.attr("fill", "#e6e6e6");
 				}
@@ -148,7 +146,6 @@ function generate_viz(route, date) {
 				if ($('#viz_div #grid').length > 0) {
 					$('#viz_div #grid').remove();
 				}
-
 				// Grid in which the speed data for the new day is displayed
 				var grid_g = svg.append("g")
 					.attr("id", "grid")
@@ -257,8 +254,8 @@ function initialize() {
 			}
 		}
 		
-		// And kick things off with the viz for I-93 NB on 8 March, 2020:
-		generate_viz('i93_nb', '2020-03-08');
+		// And kick things off with the viz for I-93 NB on 13 March, 2020:
+		generate_viz('i93_nb', '2020-03-13');
 	});
 	
 } // initialize()
