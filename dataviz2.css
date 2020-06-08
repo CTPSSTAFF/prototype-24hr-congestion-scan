@@ -1,0 +1,45 @@
+* {
+	font-family:"Trebuchet MS","sans-serif";
+}
+
+/* Rules for CTPS "branding" */
+#banner{
+	position:relative;
+	height:100%;
+	left:2%;
+	top:-43px;
+	z-index:15;
+	border: none;
+}
+.pagetitle{
+    font-size: 17px;
+}
+.ctpsHeader{
+	height:59px;
+	background-color:white
+}
+.lightBlue{
+	height:27px;
+	width:100%;
+	background-color:#7DA1C4;
+	z-index:10;
+}
+.darkBlue{
+	height:16px;
+	width:100%;
+	background-color:rgb(13,72,127);
+	z-index:10;
+}
+/* End of rules for CTPS "branding" */
+
+/* Rules for app itself */
+
+#options {
+	margin-bottom: 10px;
+}
+
+.app_caption {
+	font-size: 24px;
+	font-weight: bold;
+}
+
