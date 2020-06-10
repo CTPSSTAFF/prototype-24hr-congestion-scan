@@ -255,11 +255,11 @@ function initialize() {
 			.append("svg")
 			.attr("id", "legend_svg")
 			.attr("height", 70)
-			.attr("width", 800);
+			.attr("width", 1000);
 			
 		svg_leg.append("g")
 			.attr("class", "legendQuant")
-			.attr("transform", "translate(20,20)");
+			.attr("transform", "translate(170,20)");
 			
 		var legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
