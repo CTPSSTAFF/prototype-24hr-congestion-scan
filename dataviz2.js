@@ -103,7 +103,7 @@ function get_and_render_data_for_date(date_ix) {
 	var date, speed_csv_fn;
 	date = config_data['dates'][date_ix].value;
 	speed_csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
-	console.log('Initiating load of ' + speed_csv_fn);
+	// console.log('Initiating load of ' + speed_csv_fn);
 	d3.csv(speed_csv_fn, function(d) {
 	return {
 		tmc : 	d.tmc,
@@ -111,7 +111,7 @@ function get_and_render_data_for_date(date_ix) {
 		speed:	get_speed(d)
 		};
 	}).then(function(data) {
-		console.log('Rendering data for ' + speed_csv_fn);
+		// console.log('Rendering data for ' + speed_csv_fn);
 		var date_text = make_date_text(date);
 		$('#app_caption_date').html(date_text);
 		grid_g.selectAll("rect.cell").data(data).enter();
