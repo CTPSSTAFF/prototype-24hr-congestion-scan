@@ -71,6 +71,17 @@ function get_speed(d) {
 	return temp;
 } 
 
+// Utility function to format 'time' values for on-hover output
+//
+function format_time(time) {
+	var hour, minute, suffix, retval;
+	suffix = (time['hr'] < 12) ? 'a.m.' : 'p.m.';
+	hour = (time['hr'] <= 12) ? time['hr'] : time['hr'] - 12;
+	hour = (hour === 0) ? 12 : hour;
+	minute = (time['min'] < 10) ? '0' + time['min'] : time['min'];
+	retval = hour + ':' + minute + ' ' + suffix;
+	return retval;
+}
 
 function generate_viz(route, date) {
 	current_route = route;
@@ -172,8 +183,14 @@ function generate_viz(route, date) {
 						.attr("fill", function(d,i){ return basic_speed_scale(get_speed(d)); })
 					// The following is temporary, for use during development
 					.append("title")
-						// .text(function(d,i) { var tmp; tmp = 'tmc: ' + d.tmc + ' ' + d.speed + ' MPH'; return tmp; });
-						.text(function(d,i) { var tmp; tmp =  d.time['hr'] + ':' + d.time['min']; return tmp; });
+						.text(function(d,i) { 
+								var tmp; 
+								tmp = 'tmc: ' + d.tmc + '\n';
+								tmp += format_time(d.time) + '\n';
+								tmp += 'speed: ';
+								tmp +=  (d.speed !== NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
+								return tmp; 
+							});
 		});
 	});
 } // generate_viz()
