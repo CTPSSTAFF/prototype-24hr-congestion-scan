@@ -23,7 +23,6 @@ var left_margin = 170,
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
-
 // Time scale for x-axis
 // Use 24 hours beginning January 1, 1900 as reference point
 var timeScale = d3.scaleTime()
@@ -42,27 +41,7 @@ var basic_speed_scale = d3.scaleThreshold()
 							
 // Legend labels 
 var legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
-				
-/* 
-// Color scale for speed data
-// Function to return color for viz, based on speed in input data record.
-// Special case: need to test for missing value in input data.
-var speed_scale = function(d) {
-	var retval, temp;
-	temp = basic_speed_scale(d.speed);
-	// Tests for missing speed value in input data - d3 scale function can't do this
-	if (typeof temp === 'undefined') { 
-		// console.log('tmc = ' + d.tmc)
-		// console.log('hour = ' + d.time['hr']);
-		// console.log('minute = ' + d.time['min']);
-		// console.log('scale function returned: ' + temp);
-		retval = "gray";
-	} else {
-		retval = temp;
-	}
-	return retval;
-} // speed_scale()
-*/
+
 
 // Utility functions used when parsing timestamp and speed data
 //
@@ -180,13 +159,10 @@ function generate_viz(route, date) {
 						.attr("x", function(d,i) { 
 								var hr = d.time['hr'], min = d.time['min'];
 								var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
-								// console.log('x = ' + tmp +  '    time: hour = ' + hr + ' min = ' + min);
 								return tmp;
 							})
 						.attr("y", function(d,i) { 
 									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-									//
-									// console.log('tmc: ' + d.tmc + ' seq_num = ' + tmc_rec['seq_num']);
 									var tmc_seq = tmc_rec['seq_num'];
 									var tmp = tmc_seq * cell_h;
 									return tmp;

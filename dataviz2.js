@@ -6,7 +6,7 @@ var tmc_data = [],
     speed_data = [];
 var current_route = '',
     current_date = '';
-	
+
 // Placholder value - populated with actual number of TMCs for route by initialize_for_route
 var num_tmcs = 100;
 
@@ -37,7 +37,7 @@ var xAxis = d3.axisTop()
 				.scale(timeScale)
 				.ticks(24)
 				.tickFormat(d3.timeFormat("%I %p"));
-				
+
 // Basic threshold scale for speed data
 var basic_speed_scale = d3.scaleThreshold()
 							.domain([0, 10, 20, 30, 40, 50, Infinity])
@@ -46,29 +46,6 @@ var basic_speed_scale = d3.scaleThreshold()
 // Legend labels 
 var legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
 
-// Color scale for speed data
-// Function to return color for viz, based on speed in input data record.
-// Special case: need to test for missing value in input data.
-/*
-var speed_scale = function(d) {
-	var retval, temp;
-	temp = basic_speed_scale(d.speed);
-	// Tests for missing speed value in input data - d3 scale function can't do this
-	
-	return temp;
-	
-	if (typeof temp === 'undefined') { 
-		// console.log('tmc = ' + d.tmc)
-		// console.log('hour = ' + d.time['hr']);
-		// console.log('minute = ' + d.time['min']);
-		// console.log('scale function returned: ' + temp);
-		retval = "gray";
-	} else {
-		retval = temp;
-	}
-	return retval;
-} // speed_scale()
-*/
 
 // Utility functions used when parsing timestamp and speed data
 //
@@ -156,7 +133,6 @@ function get_and_render_data_for_date(date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
-			// .attr("fill", function(d,i){ return basic_speed_scale(d.speed); });
 			.attr("fill", function(d,i) { return basic_speed_scale(get_speed(d)); });
 	}).then(function() {
 		var tid = setTimeout(
@@ -243,13 +219,10 @@ function init_viz_for_route(route) {
 							.attr("x", function(d,i) { 
 									var hr = d.time['hr'], min = d.time['min'];
 									var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
-									// console.log('x = ' + tmp +  '    time: hour = ' + hr + ' min = ' + min);
 									return tmp;
 								})
 							.attr("y", function(d,i) { 
 										var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-										//
-										// console.log('tmc: ' + d.tmc + ' seq_num = ' + tmc_rec['seq_num']);
 										var tmc_seq = tmc_rec['seq_num'];
 										var tmp = tmc_seq * cell_h;
 										return tmp;
