@@ -101,7 +101,11 @@ function get_speed(d) {
 // SVG group for grid of SVG elements in which the speed data for a given day is displayed
 var grid_g;
 
-timer_ids = [];
+// Timer(s) to be stopped when new route is selected.
+var timer_ids = [];
+
+// One new frame of visualization is rendered every 3000 milliseconds (3 seconds).
+var FRAME_INTERVAL = 3000;
 
 // Given an INIRX format date (yyyy-mm-dd), return a US-style date string
 function make_date_text(date) {
@@ -161,7 +165,7 @@ function get_and_render_data_for_date(date_ix) {
 							get_and_render_data_for_date(date_ix+1);
 						}
 					}, 
-			5000);
+			FRAME_INTERVAL);
 			timer_ids.push(tid);
 	});
 }
@@ -304,11 +308,11 @@ function initialize() {
 			.append("svg")
 			.attr("id", "legend_svg")
 			.attr("height", 70)
-			.attr("width", 800);
+			.attr("width", 1000);
 			
 		svg_leg.append("g")
 			.attr("class", "legendQuant")
-			.attr("transform", "translate(20,20)");
+			.attr("transform", "translate(170,20)");
 			
 		var legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
