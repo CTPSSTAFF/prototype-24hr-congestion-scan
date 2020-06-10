@@ -40,16 +40,23 @@ var xAxis = d3.axisTop()
 				
 // Basic threshold scale for speed data
 var basic_speed_scale = d3.scaleThreshold()
-							.domain([10, 20, 30, 40, 50, Infinity])
-							.range(['#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
+							.domain([0, 10, 20, 30, 40, 50, Infinity])
+							.range(['gray', '#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
+							
+// Legend labels 
+var legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
 
 // Color scale for speed data
 // Function to return color for viz, based on speed in input data record.
 // Special case: need to test for missing value in input data.
+/*
 var speed_scale = function(d) {
 	var retval, temp;
 	temp = basic_speed_scale(d.speed);
 	// Tests for missing speed value in input data - d3 scale function can't do this
+	
+	return temp;
+	
 	if (typeof temp === 'undefined') { 
 		// console.log('tmc = ' + d.tmc)
 		// console.log('hour = ' + d.time['hr']);
@@ -61,8 +68,9 @@ var speed_scale = function(d) {
 	}
 	return retval;
 } // speed_scale()
+*/
 
-// Utility function used when parsing speed data
+// Utility functions used when parsing timestamp and speed data
 //
 // Format of INRIX timestamp is yyyy-mm-dd hh:mm:ss
 // Note: space between 'dd' and 'mm'.
@@ -76,6 +84,19 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
+var NO_DATA = -9999;
+
+// Speed data may be missing in some records;
+// When this is the case record this explicitly with the NO_DATA value,
+// so scale and legend functions can work w/o requiring hacks.
+//
+function get_speed(d) {
+	var temp = parseFloat(d.speed);
+	if (isNaN(temp)) {
+		temp = NO_DATA;
+	}
+	return temp;
+} 
 
 // SVG group for grid of SVG elements in which the speed data for a given day is displayed
 var grid_g;
@@ -106,7 +127,7 @@ function get_and_render_data_for_date(date_ix) {
 	return {
 		tmc : 	d.tmc,
 		time: 	get_time_from_timestamp(d.tstamp),
-		speed:	parseFloat(d.speed)
+		speed:	get_speed(d)
 		};
 	}).then(function(data) {
 		console.log('Rendering data for ' + speed_csv_fn);
@@ -131,7 +152,8 @@ function get_and_render_data_for_date(date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
-			.attr("fill", function(d,i){ return speed_scale(d); });
+			// .attr("fill", function(d,i){ return basic_speed_scale(d.speed); });
+			.attr("fill", function(d,i) { return basic_speed_scale(get_speed(d)); });
 	}).then(function() {
 		var tid = setTimeout(
 					function() {
@@ -194,12 +216,12 @@ function init_viz_for_route(route) {
 					
 		var first_date = config_data.dates[0].value;
 		var speed_csv_fn = "data/speed/" + current_route + "_" + first_date + ".csv";
-	
+		
 		d3.csv(speed_csv_fn, function(d) {
 			return {
 				tmc : 	d.tmc,
 				time: 	get_time_from_timestamp(d.tstamp),
-				speed:	parseFloat(d.speed)
+				speed:	get_speed(d)
 				};
 			}).then(function(data) {
 				var first_speed_data = data;
@@ -282,7 +304,7 @@ function initialize() {
 			.append("svg")
 			.attr("id", "legend_svg")
 			.attr("height", 70)
-			.attr("width", 700);
+			.attr("width", 800);
 			
 		svg_leg.append("g")
 			.attr("class", "legendQuant")
@@ -290,7 +312,7 @@ function initialize() {
 			
 		var legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(['< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'])
+			.labels(legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
 			.scale(basic_speed_scale);
