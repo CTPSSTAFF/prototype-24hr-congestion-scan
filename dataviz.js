@@ -1,3 +1,11 @@
+// Prototype application to visualize congestion data (i.e., generate 'congestion scans')
+// for a specified set of express highways in the Boston MPO region for a specified 
+// list of dates, using INRIX speed / travel-time data downloaded from RITIS.
+// The application generates a visualization for the route and date selected by the user.
+// The routes and dates are specified in the configuration file 'config.json'.
+//
+// Author: Ben Krepp
+
 // Data stores for TMC and speed data read in
 var tmc_data = [],
     speed_data = [];
