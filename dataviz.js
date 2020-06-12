@@ -146,9 +146,30 @@ function generate_viz(route, date) {
 			}).then(function(data) {
 				speed_data = data;
 				
+				// Grotesque work-around for INRIX data outage on 29-31 March 2020:
+				if (date === '2020-03-29' || date === '2020-03-30' || date === '2020-03-31') {
+					if ($('#viz_div #data_outage').length === 0) {
+						var outage_g = svg.append("g")
+							.attr("id", "data_outage")
+							.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+							.append("rect")
+								.attr("class", "data_outage")
+								.attr("x", 0)
+								.attr("y", 0)
+								.attr("width", num_time_recs*cell_w)
+								.attr("height", top_margin + (cell_h * num_tmcs))
+								.attr("fill", "gray");
+					}
+					// Once we've inserted this 24-hour hack, there's nothing more to do: return.
+					return;
+				} else if ($('#viz_div #data_outage').length > 0) {
+					// Date is not 29-31 March 2020; if #data_outage hack is present, remove it
+					$('#viz_div #data_outage').remove();
+				}
+				
 				// There are no data records for the time period between 0200 and 0300 
 				// on the day on which daylight savings time begins: 8 March 2020.
-				if ((date === '2020-03-08') && $('#viz_div #dst_filler').length === 0) {
+				if (date === '2020-03-08') {
 					var background_g = svg.append("g")
 						.attr("id", "dst_filler")
 						.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
@@ -159,8 +180,10 @@ function generate_viz(route, date) {
 							.attr("width", recs_per_hour*cell_w)
 							.attr("height", top_margin + (cell_h * num_tmcs))
 							.attr("fill", "#e6e6e6");
+				} else if ($('#viz_div #dst_filler').length > 0) {
+					$('#dst_filler').remove();
 				}
-				
+
 				// Remove group containing the speed grid for the previous day, if there was one.
 				if ($('#viz_div #grid').length > 0) {
 					$('#viz_div #grid').remove();
