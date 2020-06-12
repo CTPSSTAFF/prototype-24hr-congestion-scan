@@ -111,7 +111,8 @@ function make_date_text(date) {
 // Read and render the data for the selected route for one day
 // Parameter 'date_ix' is the index into the array of dates in the config object
 //
-function get_and_render_data_for_date(date_ix) {
+function get_and_render_data_for_date(route, date_ix) {
+	if (route !== current_route) return;
 	var date, speed_csv_fn;
 	date = config_data['dates'][date_ix].value;
 	speed_csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
@@ -123,6 +124,7 @@ function get_and_render_data_for_date(date_ix) {
 		speed:	get_speed(d)
 		};
 	}).then(function(data) {
+		if (route !== current_route) return;
 		// console.log('Rendering data for ' + speed_csv_fn);
 		var date_text = make_date_text(date);
 		$('#app_caption_date').html(date_text);
@@ -150,7 +152,7 @@ function get_and_render_data_for_date(date_ix) {
 		var tid = setTimeout(
 					function() {
 						if (date_ix < config_data['dates'].length - 1) {
-							get_and_render_data_for_date(date_ix+1);
+							get_and_render_data_for_date(current_route, date_ix+1);
 						}
 					}, 
 			FRAME_INTERVAL);
@@ -284,13 +286,13 @@ function initialize() {
 			init_viz_for_route(route);
 			// Read and render the data for individual days for the selected route.
 			// Kick this off by reading and rendering the data for the first day (index === 0)
-			// First, kill any pending timers from the previously selected route
+			// First, kill any pending timers from the previously selected route.
 			var tmp;
 			while (timer_ids.length > 0) {
 				tmp = timer_ids.pop();
 				clearTimeout(tmp);
 			}
-			var tid = setTimeout(function() { get_and_render_data_for_date(0); }, 500);
+			var tid = setTimeout(function() { get_and_render_data_for_date(current_route, 0); }, 1500);
 			timer_ids.push(tid);
 		});
 		
@@ -341,8 +343,9 @@ function initialize() {
 		}
 		
 		// Initialize visualization for I-93 NB
-		init_viz_for_route('i93_nb');
-		var tid  =setTimeout(function() { get_and_render_data_for_date(0); }, 500);
+		var route = 'i93_nb';
+		init_viz_for_route(route);
+		var tid  = setTimeout(function() { get_and_render_data_for_date(route, 0); }, 500);
 		timer_ids.push(tid);
 	});
 	
