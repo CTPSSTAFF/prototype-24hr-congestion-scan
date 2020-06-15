@@ -67,16 +67,22 @@ function get_time_from_timestamp(tstamp) {
 
 var NO_DATA = -9999;
 
-// Speed data may be missing in some records;
+// Speed data may be missing in some records.
 // When this is the case record this explicitly with the NO_DATA value,
 // so scale and legend functions can work w/o requiring hacks.
+// We also do not use records with a cvalue less than 75.0, setting
+// their value to NO_DATA for purposes of generating the visualization.
 //
 function get_speed(d) {
+	var retval;
 	var temp = parseFloat(d.speed);
-	if (isNaN(temp)) {
-		temp = NO_DATA;
+	if (isNaN(temp) || d.cvalue < 75.0) {
+		retval = NO_DATA;
+		// console.log('Mapping ' + temp + ' to NO_DATA.');
+	} else {
+		retval = temp;
 	}
-	return temp;
+	return retval;
 } 
 
 // Utility function to format 'time' values for on-hover output
@@ -141,7 +147,8 @@ function generate_viz(route, date) {
 			return {
 				tmc : 	d.tmc,
 				time: 	get_time_from_timestamp(d.tstamp),
-				speed:	get_speed(d)
+				speed:	get_speed(d),
+				cvalue:	d.cvalue
 				};
 			}).then(function(data) {
 				speed_data = data;
