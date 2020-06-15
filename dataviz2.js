@@ -1,3 +1,9 @@
+// Prototype application to generate an animated day-by-day visualization of congestion
+// on a selected express highway in the Boston MPO region over a given list of dates.
+// The routes and dates are specified in the configuration file 'config.json'.
+//
+// Author: Ben Krepp
+
 // Configuration data read in
 var config_data = [];
 
@@ -128,8 +134,31 @@ function get_and_render_data_for_date(route, date_ix) {
 		// console.log('Rendering data for ' + speed_csv_fn);
 		var date_text = make_date_text(date);
 		$('#app_caption_date').html(date_text);
+		
+			// Grotesque work-around for INRIX data outage on 29-31 March 2020:
+			if (date === '2020-03-29' || date === '2020-03-30' || date === '2020-03-31') {
+				if ($('#viz_div #data_outage').length === 0) {
+					var outage_g = svg.append("g")
+						.attr("id", "data_outage")
+						.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+						.append("rect")
+							.attr("class", "data_outage")
+							.attr("x", 0)
+							.attr("y", 0)
+							.attr("width", num_time_recs*cell_w)
+							.attr("height", top_margin + (cell_h * num_tmcs))
+							.attr("fill", "gray");
+				}
+				// Once we've inserted this 24-hour hack, there's nothing more to do: return.
+				return;
+			} else if ($('#viz_div #data_outage').length > 0) {
+				// Date is not 29-31 March 2020; if #data_outage hack is present, remove it
+				$('#viz_div #data_outage').remove();
+			}
+		
+		// Get on with the business of rendering real data.
 		grid_g.selectAll("rect.cell").data(data).enter();
-		// But first, deal with special case of daylight savings time change on 03/08/2020
+		// Deal with special case of daylight savings time change on 03/08/2020
 		// There are no data records for the time period between 0200 and 0300 
 		// on the day on which daylight savings time begins: 8 March 2020.
 		if (date === '2020-03-08') {
