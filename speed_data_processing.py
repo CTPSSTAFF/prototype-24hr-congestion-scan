@@ -21,37 +21,41 @@
 # 2. Extract one CSV file for each day's worth of data;
 #    at least for now, the user is expected to know the list of dates
 #
+# The author acknowledges that this script was written quite hastily, 
+# and consequently is a bit of a hack; it still may contain some 
+# vestigial debug logic, to boot. C'est la vie.
 #
+# --Ben Krepp, attending metaphysician
 
 import csv
 
-# String containing names of fields in ouput CSV files;
-# these are the "attributes of interest", with shorter names
+# String containing names of fields in the generated CSV files.
+# These are the "attributes of interest" with names slightly shortened
+# from their form in the raw downloaded data from RITIS.
 out_csv_header = 'tmc,tstamp,speed,cvalue\n'
 
 ##########################################################################
 # Step 1 - Generate a CSV file with only the attributes of interest in it.
 
-
 # Input and output filenames for Step 1
 #
 base = r's:/_congestion_data/granularity_10min/'
 
-from_fns =  [ base + 'I90_EB_data/i90_eb_missing.csv',
-              base + 'I90_WB_data/i90_wb_missing.csv',
-              base + 'I93_NB_data/i93_nb_missing.csv',
-              base + 'I93_SB_data/i93_sb_missing.csv',
-              base + 'I95_NB_data/i95_nb_missing.csv',
-              base + 'I95_SB_data/i95_sb_missing.csv',
-              base + 'I495_NB_data/i495_nb_missing.csv',
-              base + 'I495_SB_data/i495_sb_missing.csv', 
-              base + 'US3_NB_data/us3_nb_missing.csv',
-              base + 'US3_SB_data/us3_sb_missing.csv',
-              base + 'SR2_EB_data/sr2_eb_missing.csv',
-              base + 'SR2_WB_data/sr2_wb_missing.csv',
-              base + 'SR24_NB_data/sr24_nb_missing.csv',
-              base + 'SR24_SB_data/sr24_sb_missing.csv'
-]         
+from_fns =  [ base + 'I90_EB_data/i90_eb_may.csv',
+              base + 'I90_WB_data/i90_wb_may.csv',
+              base + 'I93_NB_data/i93_nb_may.csv',
+              base + 'I93_SB_data/i93_sb_may.csv',
+              base + 'I95_NB_data/i95_nb_may.csv',
+              base + 'I95_SB_data/i95_sb_may.csv',
+              base + 'I495_NB_data/i495_nb_may.csv',
+              base + 'I495_SB_data/i495_sb_may.csv', 
+              base + 'US3_NB_data/us3_nb_may.csv',
+              base + 'US3_SB_data/us3_sb_may.csv',
+              base + 'SR2_EB_data/sr2_eb_may.csv',
+              base + 'SR2_WB_data/sr2_wb_may.csv',
+              base + 'SR24_NB_data/sr24_nb_may.csv',
+              base + 'SR24_SB_data/sr24_sb_may.csv' ]         
+              
 to_fns = [ fn.replace('.csv', '_p1.csv') for fn in from_fns] 
 
 
@@ -83,9 +87,9 @@ def extract_csv_with_subset_attrs(in_fname, out_fname):
 # Perform Step 1 on all input files
 #
 for inf,outf in zip(from_fns,to_fns):
-    s = 'Input ' + inf
+    s = 'Processing input ' + inf
     print(s)
-    s = 'Output ' + outf
+    s = 'Generating output ' + outf
     print(s)
     extract_csv_with_subset_attrs(inf,outf)
 # end_for
@@ -108,10 +112,18 @@ def extract_data_for(in_fname, out_fname_prefix, date_str):
     with open(in_fname, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+            # Debug
+            s = 'row[tstamp] = ' + row['tstamp']
+            print(row)
+            #
             tstamp = row['tstamp']
             parts = tstamp.split(' ')
             date_part = parts[0]
             if date_part == date_str:
+                # Debug
+                s = 'date_part test passed; date_part = ' + date_part
+                print(s)
+                #
                 out_str = row['tmc'] + ',' + row['tstamp'] + ',' + row['speed'] +  ',' + row['cvalue'] + '\n'
                 out_f.write(out_str)
             # end_if
@@ -122,31 +134,59 @@ def extract_data_for(in_fname, out_fname_prefix, date_str):
     print(s)
 # end_def
 
-# List of dates in the input CSV file
-all_daytz = = [     '2020-03-28',
-                    '2020-03-29',
-                    '2020-03-30',
-                    '2020-03-31',
-                    '2020-04-01',
-                    '2020-04-02' ]
-
+# List of dates in the input CSV files.
+# Note: This needs to be edited to reflect the dates for which data has been downloaded.
+#       Alternatively, we _could_ read the input CSV and extract this information.
+#       Consider this as a possible feature to implement in future.
+all_daytz =  [      '2020-05-01',
+                    '2020-05-02',
+                    '2020-05-03',
+                    '2020-05-04',
+                    '2020-05-05',
+                    '2020-05-06',
+                    '2020-05-07',
+                    '2020-05-08',
+                    '2020-05-09',
+                    '2020-05-10',
+                    '2020-05-11',
+                    '2020-05-12',
+                    '2020-05-13',
+                    '2020-05-14',
+                    '2020-05-15',
+                    '2020-05-16',
+                    '2020-05-17',
+                    '2020-05-18',
+                    '2020-05-19',
+                    '2020-05-20',
+                    '2020-05-21',
+                    '2020-05-22',
+                    '2020-05-23',
+                    '2020-05-24',
+                    '2020-05-25',
+                    '2020-05-26',
+                    '2020-05-27',
+                    '2020-05-28',
+                    '2020-05-29',
+                    '2020-05-30',
+                    '2020-05-31' ]
+                    
 
 # Note: the input to step 2 is the output of step 1.
 #        
-in_fnames = [   base + 'I90_EB_data/i90_eb_missing_p1.csv',
-                base + 'I90_WB_data/i90_wb_missing_p1.csv',
-                base + 'I93_NB_data/i93_nb_missing_p1.csv',
-                base + 'I93_SB_data/i93_sb_missing_p1.csv',
-                base + 'I95_NB_data/i95_nb_missing_p1.csv',
-                base + 'I95_SB_data/i95_sb_missing_p1.csv',    
-                base + 'I495_NB_data/i495_nb_missing_p1.csv',
-                base + 'I495_SB_data/i495_sb_missing_p1.csv', 
-                base + 'US3_NB_data/us3_nb_missing_p1.csv',                
-                base + 'US3_SB_data/us3_sb_missing_p1.csv', 
-                base + 'SR2_EB_data/sr2_eb_missing_p1.csv',
-                base + 'SR2_WB_data/sr2_wb_missing_p1.csv',
-                base + 'SR24_NB_data/sr24_nb_missing_p1.csv',                
-                base + 'SR24_SB_data/sr24_sb_missing_p1.csv' ]
+in_fnames = [   base + 'I90_EB_data/i90_eb_may_p1.csv',
+                base + 'I90_WB_data/i90_wb_may_p1.csv',
+                base + 'I93_NB_data/i93_nb_may_p1.csv',
+                base + 'I93_SB_data/i93_sb_may_p1.csv',
+                base + 'I95_NB_data/i95_nb_may_p1.csv',
+                base + 'I95_SB_data/i95_sb_may_p1.csv',    
+                base + 'I495_NB_data/i495_nb_may_p1.csv',
+                base + 'I495_SB_data/i495_sb_may_p1.csv', 
+                base + 'US3_NB_data/us3_nb_may_p1.csv',                
+                base + 'US3_SB_data/us3_sb_may_p1.csv', 
+                base + 'SR2_EB_data/sr2_eb_may_p1.csv',
+                base + 'SR2_WB_data/sr2_wb_may_p1.csv',
+                base + 'SR24_NB_data/sr24_nb_may_p1.csv',                
+                base + 'SR24_SB_data/sr24_sb_may_p1.csv' ]
                 
 out_prefixes = [    base + 'I90_EB_data/i90_eb_',
                     base + 'I90_WB_data/i90_wb_',
@@ -163,20 +203,14 @@ out_prefixes = [    base + 'I90_EB_data/i90_eb_',
                     base + 'SR24_NB_data/sr24_nb_',                
                     base + 'SR24_SB_data/sr24_sb_' ]   
 
-def eff(a,b):
-	print(a)
-	print(b)
-    
-# Test of 'zip' function
-for (phyle, prefix) in zip(in_fnames, out_prefixes):
-    eff(phyle, prefix)    
-  
-# Perform Step 2 on all files generated as the result of running Step 1.  
-for (phyle, prefix) in zip(in_fnames, out_prefixes):
-    s1 = 'Processing ' + phyle
-    print(s1)
-    for d in problem_daytz:
-        s2 = '   Processing ' + d
-        print(s2)
-        extract_data_for(phyle, prefix, d)
-# end_for
+# Perform Step 2 on all files generated as the result of running Step 1.    
+def perform_step_2(in_fnames, out_prefixes, daytz):
+    for (phyle, prefix) in zip(in_fnames, out_prefixes):
+        s1 = 'Processing file: ' + phyle
+        print(s1)
+        for d in daytz:
+            s2 = '   Processing ' + d
+            print(s2)
+            extract_data_for(phyle, prefix, d)
+    # end_for
+# end_def
