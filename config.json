@@ -13,7 +13,7 @@
 					{	"value"	:	"sr24_nb",	"text"	:	"SR-24 Northbound",	"selected"	: 	false },
 					{	"value"	:	"sr24_sb",	"text"	:	"SR-24 Southbound",	"selected"	: 	false }
 				],
-	"dates" :	[ 	{	"value"	:	"2020-03-01",	"text"	:	"March 1, 2020",	"selected"	:	false   },
+	"dates" :	[ 	{	"value"	:	"2020-03-01",	"text"	:	"March 1, 2020",	"selected"	:	true   },
 					{	"value"	:	"2020-03-02",	"text"	:	"March 2, 2020",	"selected"	:	false   },
 					{	"value"	:	"2020-03-03",	"text"	:	"March 3, 2020",	"selected"	:	false   },
 					{	"value"	:	"2020-03-04",	"text"	:	"March 4, 2020",	"selected"	:	false   },
@@ -25,7 +25,7 @@
 					{	"value"	:	"2020-03-10",	"text"	:	"March 10, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-03-11",	"text"	:	"March 11, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-03-12",	"text"	:	"March 12, 2020",	"selected"	: 	false  },
-					{	"value"	:	"2020-03-13",	"text"	:	"March 13, 2020",	"selected"	: 	true  },
+					{	"value"	:	"2020-03-13",	"text"	:	"March 13, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-03-14",	"text"	:	"March 14, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-03-15",	"text"	:	"March 15, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-03-16",	"text"	:	"March 16, 2020",	"selected"	: 	false  },
