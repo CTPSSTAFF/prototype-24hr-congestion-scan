@@ -4,7 +4,7 @@ Prototype congestion-scan generator using INRIX speed data as input.
 Congestion scans may be generated in either static or animated form:
 * congestion_scan.html - Generate a 24-hour congestion scan for a specified route on a specified day
 * congestion_over_time.html - Generate an animated series of 24-hour congestion scans for a specified route,
-over all days for which data is available, has been donwnloaded, and processed for use in this app.
+over all days for which data is available and has been donwnloaded and processed for use in this app.
 
 The prototype currently supports generation of congestion scans for all days between
 March 1, 2020 and May 31, 2020. But note:
