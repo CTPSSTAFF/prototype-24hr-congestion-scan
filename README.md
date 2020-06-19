@@ -13,7 +13,7 @@ But note:
     * No data at all is available for 29, 30, and 31 March, 2020.
 	* Data is only available for a few hours on 28 March, 1 April, and 2 April, 2020.
 * There is no data for 2:00 a.m. to 3:00 a.m. on 8 March, 2020: this is the time at which
-daylight savings time came into effect in 2020, and the clock "leapt forward" by 1 hour from 2:00 a.m. directly to 4:00 a.m.
+daylight savings time came into effect in 2020, and the clock "leapt forward" by 1 hour from 2:00 a.m. directly to 3:00 a.m.
 
 The prototype currently supports generation of congestion scans for the following routes:
 * I-90 EB and WB in MA between I-495 and Boston
