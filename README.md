@@ -9,7 +9,7 @@ over all days for which data is available and has been donwnloaded and processed
 The prototype currently supports generation of congestion scans for all days between
 March 1, 2020 and May 31, 2020.  
 But note:
-* INRIX experienced a data outage between 28 March and 1 April, 2020. Consequently:
+* INRIX experienced a data outage between 28 March and 2 April, 2020. Consequently:
     * No data at all is available for 29, 30, and 31 March, 2020.
 	* Data is only available for a few hours on 28 March, 1 April, and 2 April, 2020.
 * There is no data for 2:00 a.m. to 3:00 a.m. on 8 March, 2020: this is the time at which
