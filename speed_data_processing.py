@@ -41,20 +41,20 @@ out_csv_header = 'tmc,tstamp,speed,cvalue\n'
 #
 base = r's:/_congestion_data/granularity_10min/'
 
-from_fns =  [ base + 'I90_EB_data/i90_eb_may.csv',
-              base + 'I90_WB_data/i90_wb_may.csv',
-              base + 'I93_NB_data/i93_nb_may.csv',
-              base + 'I93_SB_data/i93_sb_may.csv',
-              base + 'I95_NB_data/i95_nb_may.csv',
-              base + 'I95_SB_data/i95_sb_may.csv',
-              base + 'I495_NB_data/i495_nb_may.csv',
-              base + 'I495_SB_data/i495_sb_may.csv', 
-              base + 'US3_NB_data/us3_nb_may.csv',
-              base + 'US3_SB_data/us3_sb_may.csv',
-              base + 'SR2_EB_data/sr2_eb_may.csv',
-              base + 'SR2_WB_data/sr2_wb_may.csv',
-              base + 'SR24_NB_data/sr24_nb_may.csv',
-              base + 'SR24_SB_data/sr24_sb_may.csv' ]         
+from_fns =  [ base + 'I90_EB_data/i90_eb_j1.csv',
+              base + 'I90_WB_data/i90_wb_j1.csv',
+              base + 'I93_NB_data/i93_nb_j1.csv',
+              base + 'I93_SB_data/i93_sb_j1.csv',
+              base + 'I95_NB_data/i95_nb_j1.csv',
+              base + 'I95_SB_data/i95_sb_j1.csv',
+              base + 'I495_NB_data/i495_nb_j1.csv',
+              base + 'I495_SB_data/i495_sb_j1.csv', 
+              base + 'US3_NB_data/us3_nb_j1.csv',
+              base + 'US3_SB_data/us3_sb_j1.csv',
+              base + 'SR2_EB_data/sr2_eb_j1.csv',
+              base + 'SR2_WB_data/sr2_wb_j1.csv',
+              base + 'SR24_NB_data/sr24_nb_j1.csv',
+              base + 'SR24_SB_data/sr24_sb_j1.csv' ]         
               
 to_fns = [ fn.replace('.csv', '_p1.csv') for fn in from_fns] 
 
@@ -113,16 +113,16 @@ def extract_data_for(in_fname, out_fname_prefix, date_str):
         reader = csv.DictReader(csvfile)
         for row in reader:
             # Debug
-            s = 'row[tstamp] = ' + row['tstamp']
-            print(row)
+            # s = 'row[tstamp] = ' + row['tstamp']
+            # print(row)
             #
             tstamp = row['tstamp']
             parts = tstamp.split(' ')
             date_part = parts[0]
             if date_part == date_str:
                 # Debug
-                s = 'date_part test passed; date_part = ' + date_part
-                print(s)
+                # s = 'date_part test passed; date_part = ' + date_part
+                # print(s)
                 #
                 out_str = row['tmc'] + ',' + row['tstamp'] + ',' + row['speed'] +  ',' + row['cvalue'] + '\n'
                 out_f.write(out_str)
@@ -137,56 +137,141 @@ def extract_data_for(in_fname, out_fname_prefix, date_str):
 # List of dates in the input CSV files.
 # Note: This needs to be edited to reflect the dates for which data has been downloaded.
 #       Alternatively, we _could_ read the input CSV and extract this information.
-#       Consider this as a possible feature to implement in future.
-all_daytz =  [      '2020-05-01',
-                    '2020-05-02',
-                    '2020-05-03',
-                    '2020-05-04',
-                    '2020-05-05',
-                    '2020-05-06',
-                    '2020-05-07',
-                    '2020-05-08',
-                    '2020-05-09',
-                    '2020-05-10',
-                    '2020-05-11',
-                    '2020-05-12',
-                    '2020-05-13',
-                    '2020-05-14',
-                    '2020-05-15',
-                    '2020-05-16',
-                    '2020-05-17',
-                    '2020-05-18',
-                    '2020-05-19',
-                    '2020-05-20',
-                    '2020-05-21',
-                    '2020-05-22',
-                    '2020-05-23',
-                    '2020-05-24',
-                    '2020-05-25',
-                    '2020-05-26',
-                    '2020-05-27',
-                    '2020-05-28',
-                    '2020-05-29',
-                    '2020-05-30',
-                    '2020-05-31' ]
+#       Consider this as a possible feature to implement in future.               
+all_daytz = [   '2020-03-01',
+                '2020-03-02',
+                '2020-03-03',
+                '2020-03-04',
+                '2020-03-05',
+                '2020-03-06',
+                '2020-03-07',
+                '2020-03-08',
+                '2020-03-09',
+                '2020-03-10',
+                '2020-03-11',
+                '2020-03-12',
+                '2020-03-13',
+                '2020-03-14',
+                '2020-03-15',
+                '2020-03-16',
+                '2020-03-17',
+                '2020-03-18',
+                '2020-03-19',
+                '2020-03-20',
+                '2020-03-21',
+                '2020-03-22',
+                '2020-03-23',
+                '2020-03-24',
+                '2020-03-25',
+                '2020-03-26',
+                '2020-03-27',
+                '2020-03-28',
+                '2020-03-29',
+                '2020-03-30',
+                '2020-03-31',
+                '2020-04-01',
+                '2020-04-02',
+                '2020-04-03',
+                '2020-04-04',
+                '2020-04-05',
+                '2020-04-06',
+                '2020-04-07',
+                '2020-04-08',
+                '2020-04-09',
+                '2020-04-10',
+                '2020-04-11',
+                '2020-04-12',
+                '2020-04-13',
+                '2020-04-14',
+                '2020-04-15',
+                '2020-04-16',
+                '2020-04-17',
+                '2020-04-18',
+                '2020-04-19',
+                '2020-04-20',
+                '2020-04-21',
+                '2020-04-22',
+                '2020-04-23',
+                '2020-04-24',
+                '2020-04-25',
+                '2020-04-26',
+                '2020-04-27',
+                '2020-04-28',
+                '2020-04-29',
+                '2020-04-30',
+                '2020-05-01',
+                '2020-05-02',
+                '2020-05-03',
+                '2020-05-04',
+                '2020-05-05',
+                '2020-05-06',
+                '2020-05-07',
+                '2020-05-08',
+                '2020-05-09',
+                '2020-05-10',
+                '2020-05-11',
+                '2020-05-12',
+                '2020-05-13',
+                '2020-05-14',
+                '2020-05-15',
+                '2020-05-16',
+                '2020-05-17',
+                '2020-05-18',
+                '2020-05-19',
+                '2020-05-20',
+                '2020-05-21',
+                '2020-05-22',
+                '2020-05-23',
+                '2020-05-24',
+                '2020-05-25',
+                '2020-05-26',
+                '2020-05-27',
+                '2020-05-28',
+                '2020-05-29',
+                '2020-05-30',
+                '2020-05-31',
+                '2020-06-01',
+                '2020-06-02',
+                '2020-06-03',
+                '2020-06-04',
+                '2020-06-05',
+                '2020-06-06',
+                '2020-06-07',
+                '2020-06-08',
+                '2020-06-09',
+                '2020-06-10',
+                '2020-06-11',
+                '2020-06-12',
+                '2020-06-13',
+                '2020-06-14',
+                '2020-06-15',
+                '2020-06-16',
+                '2020-06-17',
+                '2020-06-18',
+                '2020-06-19',
+                '2020-06-20' ]
                     
 
 # Note: the input to step 2 is the output of step 1.
-#        
-in_fnames = [   base + 'I90_EB_data/i90_eb_may_p1.csv',
-                base + 'I90_WB_data/i90_wb_may_p1.csv',
-                base + 'I93_NB_data/i93_nb_may_p1.csv',
-                base + 'I93_SB_data/i93_sb_may_p1.csv',
-                base + 'I95_NB_data/i95_nb_may_p1.csv',
-                base + 'I95_SB_data/i95_sb_may_p1.csv',    
-                base + 'I495_NB_data/i495_nb_may_p1.csv',
-                base + 'I495_SB_data/i495_sb_may_p1.csv', 
-                base + 'US3_NB_data/us3_nb_may_p1.csv',                
-                base + 'US3_SB_data/us3_sb_may_p1.csv', 
-                base + 'SR2_EB_data/sr2_eb_may_p1.csv',
-                base + 'SR2_WB_data/sr2_wb_may_p1.csv',
-                base + 'SR24_NB_data/sr24_nb_may_p1.csv',                
-                base + 'SR24_SB_data/sr24_sb_may_p1.csv' ]
+#   
+# Note the following statement can be removed.     
+in_fnames = [   base + 'I90_EB_data/i90_eb_june_p1.csv',
+                base + 'I90_WB_data/i90_wb_june_p1.csv',
+                base + 'I93_NB_data/i93_nb_june_p1.csv',
+                base + 'I93_SB_data/i93_sb_june_p1.csv',
+                base + 'I95_NB_data/i95_nb_june_p1.csv',
+                base + 'I95_SB_data/i95_sb_june_p1.csv',    
+                base + 'I495_NB_data/i495_nb_june_p1.csv',
+                base + 'I495_SB_data/i495_sb_june_p1.csv', 
+                base + 'US3_NB_data/us3_nb_june_p1.csv',                
+                base + 'US3_SB_data/us3_sb_june_p1.csv', 
+                base + 'SR2_EB_data/sr2_eb_june_p1.csv',
+                base + 'SR2_WB_data/sr2_wb_june_p1.csv',
+                base + 'SR24_NB_data/sr24_nb_june_p1.csv',                
+                base + 'SR24_SB_data/sr24_sb_june_p1.csv' ]
+
+in_fnames = []
+in_fnames = to_fns
                 
 out_prefixes = [    base + 'I90_EB_data/i90_eb_',
                     base + 'I90_WB_data/i90_wb_',
