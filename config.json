@@ -106,6 +106,27 @@
 					{	"value"	:	"2020-05-28", 	"text"	:	"May 28, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-05-29", 	"text"	:	"May 29, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-05-30", 	"text"	:	"May 30, 2020",	"selected"	: 	false  },
-					{	"value"	:	"2020-05-31", 	"text"	:	"May 31, 2020",	"selected"	: 	false  }
+					{	"value"	:	"2020-05-31", 	"text"	:	"May 31, 2020",	"selected"	: 	false  },
+					
+					{	"value"	:	"2020-06-01", 	"text"	:	"June 1, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-02", 	"text"	:	"June 2, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-03", 	"text"	:	"June 3, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-04", 	"text"	:	"June 4, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-05", 	"text"	:	"June 5, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-06", 	"text"	:	"June 6, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-07", 	"text"	:	"June 7, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-08",	"text"	:	"June 8, 2020",		"selected"	:	false  },
+					{	"value"	:	"2020-06-09",	"text"	:	"June 9, 2020",		"selected"	: 	false  },
+					{	"value"	:	"2020-06-10",	"text"	:	"June 10, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-11",	"text"	:	"June 11, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-12",	"text"	:	"June 12, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-13",	"text"	:	"June 13, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-14",	"text"	:	"June 14, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-15",	"text"	:	"June 15, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-16",	"text"	:	"June 16, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-17",	"text"	:	"June 17, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-18",	"text"	:	"June 18, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-19",	"text"	:	"June 19, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-20",	"text"	:	"June 20, 2020",	"selected"	: 	false  }
 				]
 }
