@@ -54,7 +54,9 @@ from_fns =  [ base + 'I90_EB_data/i90_eb_j1.csv',
               base + 'SR2_EB_data/sr2_eb_j1.csv',
               base + 'SR2_WB_data/sr2_wb_j1.csv',
               base + 'SR24_NB_data/sr24_nb_j1.csv',
-              base + 'SR24_SB_data/sr24_sb_j1.csv' ]         
+              base + 'SR24_SB_data/sr24_sb_j1.csv',
+              base + 'US1_NB_data/us1_nb.csv',
+              base + 'US1_SB_data/us1_sb.csv']         
               
 to_fns = [ fn.replace('.csv', '_p1.csv') for fn in from_fns] 
 
@@ -268,7 +270,9 @@ in_fnames = [   base + 'I90_EB_data/i90_eb_june_p1.csv',
                 base + 'SR2_EB_data/sr2_eb_june_p1.csv',
                 base + 'SR2_WB_data/sr2_wb_june_p1.csv',
                 base + 'SR24_NB_data/sr24_nb_june_p1.csv',                
-                base + 'SR24_SB_data/sr24_sb_june_p1.csv' ]
+                base + 'SR24_SB_data/sr24_sb_june_p1.csv',
+                base + 'US1_NB_data/us1_nb.csv',
+                base + 'US1_SB_data/us1_sb.csv' ]
 
 in_fnames = []
 in_fnames = to_fns
@@ -286,7 +290,9 @@ out_prefixes = [    base + 'I90_EB_data/i90_eb_',
                     base + 'SR2_EB_data/sr2_eb_',
                     base + 'SR2_WB_data/sr2_wb_',
                     base + 'SR24_NB_data/sr24_nb_',                
-                    base + 'SR24_SB_data/sr24_sb_' ]   
+                    base + 'SR24_SB_data/sr24_sb_',
+                    base + 'US1_NB_data/us1_nb_', 
+                    base + 'US1_SB_data/us1_sb_' ]   
 
 # Perform Step 2 on all files generated as the result of running Step 1.    
 def perform_step_2(in_fnames, out_prefixes, daytz):
