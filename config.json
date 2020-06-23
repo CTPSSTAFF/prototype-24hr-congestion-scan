@@ -6,6 +6,8 @@
 					{	"value"	:	"i95_sb",	"text"	:	"I-95 Southbound",	"selected"	: 	false },
 					{	"value"	:	"i495_nb",	"text"	:	"I-495 Northbound",	"selected"	: 	false },
 					{	"value"	:	"i495_sb",	"text"	:	"I-495 Southbound",	"selected"	: 	false },
+					{	"value"	:	"us1_nb",	"text"	:	"US-1 Northbound",	"selected"	: 	false },
+					{	"value"	:	"us1_sb",	"text"	:	"US-1 Southbound",	"selected"	: 	false },
 					{	"value"	:	"us3_nb",	"text"	:	"US-3 Northbound",	"selected"	: 	false },
 					{	"value"	:	"us3_sb",	"text"	:	"US-3 Southbound",	"selected"	: 	false },
 					{	"value"	:	"sr2_eb",	"text"	:	"SR-2 Eastbound",	"selected"	: 	false },
