@@ -4,7 +4,9 @@
 		<meta charset="utf-8">
 		<title>24-hour Congestion Visualization</title>
 		<link rel="stylesheet" href="dataviz.css"/>
+		<link rel="stylesheet" href="libs/jquery-ui-1.12.1/jquery-ui.css"/>
 		<script src="libs/jquery.min-3.5.1.js"></script>
+		<script src="libs/jquery-ui-1.12.1/jquery-ui.js"></script>
 		<script src="libs/lodash.js"></script>
 		<script src="libs/d3.js"></script>
 		<script src="libs/d3-legend-2.25.6.js"></script>
@@ -18,18 +20,21 @@
 					 <option value="0">Select a route</option> 
 				</select>&nbsp;&nbsp;&nbsp;
 				Select date:&nbsp;
+			<!--
 				<select id="select_date">
 					<option value="0">Select a date</option> 
 				</select>
-			<!--
+			-->
+				<input type="text" id="datepicker">
+			<!-- 	
 				&nbsp;&nbsp;&nbsp;
 				<input type="checkbox" id="cvalue_limit" name="scales">
                 <label for="cvalue_limit">Only use data with C-value >= 75.</label>
 			-->
 			</span>
-		</div>
+		</div>		
 		<div id="legend_div"></div>
 		<div id="viz_div"></div>
 		<script src="dataviz.js"></script>
 	</body>
-</html>
+</html> 

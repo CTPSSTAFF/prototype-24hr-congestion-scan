@@ -233,9 +233,68 @@ function generate_viz(route, date) {
 	});
 } // generate_viz()
 
+
+// usDateStrToAppDateStr: Convert a "US-style" date string into a "yyyy-mm-dd" format date string,
+//                        the date format used internally by this app, and return it.
+//
+// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
+// Note the following about the datepicker format 'MM d, yy':
+//     MM - full text of name of month, e.g., "January"
+//     d  - day of month, with NO leading zeros
+//     yy - four digit (yes, FOUR-digit) year
+// ==> There is EXACTLY one space between the month name and the day-of-month.
+// ==> There is EXACTLY one space between the comma (',') and the year
+//
+function usDateStrToAppDateStr(usDateStr) {
+	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
+	var months = {  'January'   : '01',
+					'February'  : '02',
+					'March'     : '03',
+					'April'     : '04',
+					'May'       : '05',
+					'June'      : '06',
+					'July'      : '07',
+					'August'    : '08',
+					'September' : '09',
+					'October'   : '10',
+					'November'  : '11',
+					'December'  : '12'
+	}; 
+	
+	retval = '';
+	parts = usDateStr.split(' ');
+	moStr = parts[0];
+	dayStr = parts[1].replace(',','');
+	yrStr = parts[2];
+	outYr = yrStr;
+	outMo = months[moStr];
+	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
+	retval = outYr + '-' + outMo + '-' + outDay;
+	return retval;
+} // usDateStrToAppDateStr()
+
+// jsDateObjToAppDateStr: Convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
+//                        the date format used internally by this app, and return it.
+//
+function jsDateObjToAppDateStr(jsDate) {
+	var year, month, dayOfMonth, appDateStr;
+	year = jsDate.getFullYear();
+	// Remember: JS Date object months are ZERO indexed!
+	month = jsDate.getMonth() + 1;
+	month = (month < 10) ? "0" + month : month;
+	dayOfMonth = jsDate.getDate();
+	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
+	appDateStr = year + '-' + month + '-' + dayOfMonth;
+	return appDateStr;
+} // jsDateObjToAppDateStr()
+
+
+
 // Function: initialize
-// Summary: read configuration file, populate select boxes and define event handers for them,
-//          generate SVG framework, and X-axis
+// Summary: read configuration file
+//			populate select box for route and define event handler for it
+//			configure datepicker UI control and define event handler for it 
+//          generate SVG framework, including X-axis
 function initialize() {
 	d3.json("config.json").then(function(config) {
 		// Populate the <select> box for route
@@ -250,7 +309,10 @@ function initialize() {
 			}
             oSelect.options.add(oOption); 
         }
-		// Populate the <select> box for date
+		
+/* 
+		// Populate the <select> box for date - commented out
+		// REPLACED by datepicker control; see below
         oSelect = document.getElementById("select_date");
         for (i = 0; i < config.dates.length; i++) {
             oOption = document.createElement("OPTION");
@@ -261,8 +323,22 @@ function initialize() {
 			}
 			oSelect.options.add(oOption);
         }
-		
-		// Define event handlers for select boxes
+*/
+
+		// Configure datepicker control (replacement for select_date combo box)
+		$('#datepicker').datepicker({ dateFormat: 'MM d, yy' });
+		$('#datepicker').datepicker({ showOn: "focus" });
+		var minDate = config.dates[0].text,
+		    maxDate = config.dates[config.dates.length-1].text;
+			
+		// N.B. The "month" in JS Date objects is zero-indexed.
+		$('#datepicker').datepicker("option", "minDate", minDate);
+		$('#datepicker').datepicker("option", "maxDate", maxDate); 
+		$('#datepicker').datepicker("option", "defaultDate", minDate);
+		$('#datepicker').datepicker( "setDate", minDate);
+
+/*
+		//  Event handler for route select box - OLD FORM (commented out)
 		$('#select_route').change(function(e) {
 			var route, date;
 			route = $("#select_route option:selected").attr('value');
@@ -271,7 +347,21 @@ function initialize() {
 			current_date = date;
 			generate_viz(route, date);
 		});
-		
+*/
+		// Event handler for route select box - NEW FORM:
+		$('#select_route').change(function(e) {
+			var route, jsDate, date;
+			route = $("#select_route option:selected").attr('value');
+			current_route = route;
+			// NOTE: the "getDate" call returns a JS Date object, NOT a string!
+			jsDate = $("#datepicker").datepicker( "getDate" );
+			date = jsDateObjToAppDateStr(jsDate);
+			current_date = date;
+			generate_viz(route, date);
+		});
+
+/* 
+		// Event handler for date select box - replaced by datepicker "close" handler
 		$('#select_date').change( function(e) {
 			var route, date;
 			route = $("#select_route option:selected").attr('value');
@@ -280,6 +370,23 @@ function initialize() {
 			current_date = date;
 			generate_viz(route, date);
 		});
+*/
+
+		// Define "close" handler for datepicker - fired when a new date is selected
+		$('#datepicker').datepicker("option", "onClose", 
+			function(dateText, inst) {
+				var _DEBUG_HOOK_ = 0;
+				var date;
+				if (dateText === "") return;
+				
+				route = $("#select_route option:selected").attr('value');
+				current_route = route;
+
+				date  = usDateStrToAppDateStr(dateText);
+				current_date = date;
+				generate_viz(route, date);
+		});
+		
 		
 		// Generate SVG legend
 		svg_leg = d3.select('#legend_div')
@@ -327,8 +434,8 @@ function initialize() {
 			}
 		}
 		
-		// And kick things off with the viz for I-93 NB on 13 March, 2020:
-		generate_viz('i93_nb', '2020-03-13');
+		// And kick things off with the viz for I-93 NB on 1 March, 2020:
+		generate_viz('i93_nb', '2020-03-01');
 	});
 	
 } // initialize()
