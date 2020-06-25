@@ -25,7 +25,7 @@
 # and consequently is a bit of a hack; it still may contain some 
 # vestigial debug logic, to boot. C'est la vie.
 #
-# --Ben Krepp, attending metaphysician 25 June 2020
+# --Ben Krepp, attending metaphysician
 
 import csv
 
