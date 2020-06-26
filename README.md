@@ -33,6 +33,15 @@ In keeping with CMP practice, we use only data records with __confidence scores_
 generator itself. We chose to do this rather than filtering on c-value in speed_data_processing.py, in case there was interest
 in visualizing data with different c-value limit(s).
 
+The data files read by this application reside in the __data/tmc__ and __data/speed__ subdirectories.
+The __data/tmc__ subdirectory contains one "TMC definition" file per route supported.
+These files use the naming convention <MassDOT_route_id_in_lower_case>\_tmcs.csv, e.g., i90\_eb\_tmcs.csv.
+
+The __data/speed_subdirectory contains one "speed data" file for the cross-product of all routes supported
+and all dates supported. For example, for the route id "I90 NB" there is a "speed data" file for each day
+between March 1, 2020 and June 20, 2020. These files use the 
+naming convention <Mass_DOT_route_id_in_lower_case>\_yyyy-mm-dd, e.g., i90_eb_2020-03-01.csv.
+
 This prototype depends upon the following external libraries:
 * jQuery version 3.5.1
 * lodash version 4.17.15
