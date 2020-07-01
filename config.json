@@ -129,6 +129,16 @@
 					{	"value"	:	"2020-06-17",	"text"	:	"June 17, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-06-18",	"text"	:	"June 18, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-06-19",	"text"	:	"June 19, 2020",	"selected"	: 	false  },
-					{	"value"	:	"2020-06-20",	"text"	:	"June 20, 2020",	"selected"	: 	false  }
+					{	"value"	:	"2020-06-20",	"text"	:	"June 20, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-21", 	"text"	:	"June 21, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-22", 	"text"	:	"June 22, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-23", 	"text"	:	"June 23, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-24", 	"text"	:	"June 24, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-25", 	"text"	:	"June 25, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-26", 	"text"	:	"June 26, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-27", 	"text"	:	"June 27, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-28", 	"text"	:	"June 28, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-29", 	"text"	:	"June 29, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-06-30", 	"text"	:	"June 30, 2020",	"selected"	: 	false  }                                      
 				]
 } 
