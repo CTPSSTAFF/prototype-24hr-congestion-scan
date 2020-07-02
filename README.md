@@ -7,7 +7,7 @@ Congestion scans may be generated in either static or animated form:
 over all days for which data is available and has been donwnloaded and processed for use in this app.
 
 The prototype currently supports generation of congestion scans for all days between
-March 1, 2020 and June 20, 2020.  
+March 1, 2020 and June 30, 2020.  
 But note:
 * INRIX experienced a data outage between 28 March and 2 April, 2020. Consequently:
     * No data at all is available for 29, 30, and 31 March, 2020.
