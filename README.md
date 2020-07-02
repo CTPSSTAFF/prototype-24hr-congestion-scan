@@ -20,6 +20,7 @@ The prototype currently supports generation of congestion scans for the followin
 * I-93 NB and SB (entire route in MA)
 * I-95 NB and SB (entire route in MA)
 * I-495 NB and SB (entire rotue in MA)
+* US-1 NB and SB between I-93 and Peabody
 * US-3 NB and SB between I-95 and the New Hampshire state line
 * MA SR-2 EB and WB within the CTPS model region
 * MA SR-24 NB and SB within the CTPS model region
