@@ -16,6 +16,8 @@
 					{	"value"	:	"us44_wb",	"text"	:	"US-44 Westbound",	"selected"	: 	false },                                        
 					{	"value"	:	"sr2_eb",	"text"	:	"SR-2 Eastbound",	"selected"	: 	false },
 					{	"value"	:	"sr2_wb",	"text"	:	"SR-2 Westbound",	"selected"	: 	false },
+ 					{	"value"	:	"sr3_nb",	"text"	:	"SR-3 Northbound",	"selected"	: 	false },
+					{	"value"	:	"sr3_sb",	"text"	:	"SR-3 Southbound",	"selected"	: 	false },                    
 					{	"value"	:	"sr24_nb",	"text"	:	"SR-24 Northbound",	"selected"	: 	false },
 					{	"value"	:	"sr24_sb",	"text"	:	"SR-24 Southbound",	"selected"	: 	false }
 				],
