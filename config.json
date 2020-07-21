@@ -19,7 +19,10 @@
  					{	"value"	:	"sr3_nb",	"text"	:	"SR-3 Northbound",	"selected"	: 	false },
 					{	"value"	:	"sr3_sb",	"text"	:	"SR-3 Southbound",	"selected"	: 	false },                    
 					{	"value"	:	"sr24_nb",	"text"	:	"SR-24 Northbound",	"selected"	: 	false },
-					{	"value"	:	"sr24_sb",	"text"	:	"SR-24 Southbound",	"selected"	: 	false }
+					{	"value"	:	"sr24_sb",	"text"	:	"SR-24 Southbound",	"selected"	: 	false },
+					{	"value"	:	"sr128_nb",	"text"	:	"SR-128 Northbound","selected"	: 	false },
+					{	"value"	:	"sr128_sb",	"text"	:	"SR-128 Southbound","selected"	: 	false }                   
+                    
 				],
 	"dates" :	[ 	{	"value"	:	"2020-03-01",	"text"	:	"March 1, 2020",	"selected"	:	true   },
 					{	"value"	:	"2020-03-02",	"text"	:	"March 2, 2020",	"selected"	:	false   },
