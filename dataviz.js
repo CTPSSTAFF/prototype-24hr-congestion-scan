@@ -211,7 +211,7 @@ function generate_viz(route, date) {
 								return tmp;
 							})
 						.attr("y", function(d,i) { 
-									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });                                   
 									var tmc_seq = tmc_rec['seq_num'];
 									var tmp = tmc_seq * cell_h;
 									return tmp;
