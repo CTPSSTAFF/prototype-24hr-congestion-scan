@@ -29,20 +29,20 @@
 					 <option value="0">Select a route</option> 
 				</select>&nbsp;&nbsp;&nbsp;
 				Select date:&nbsp;
-			<!--
-				<select id="select_date">
-					<option value="0">Select a date</option> 
-				</select>
-			-->
-				<input type="text" id="datepicker">
-			<!-- 	
-				&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" id="cvalue_limit" name="scales">
-                <label for="cvalue_limit">Only use data with C-value >= 75.</label>
-			-->
+				<input type="text" id="datepicker">		<!-- jQueryUI datepicker control -->
+
+				&nbsp;&nbsp;Select Metric:
+				&nbsp;Speed:&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
+				&nbsp;Speed Index:&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
+				
+				&nbsp;
+				<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
+                <label for="restrict_cvalue">Only use data with C-value >= 75</label>
+				
 			</span>
 		</div>		
-		<div id="legend_div"></div>
+		<div id="speed_legend_div"></div>
+		<div id="speed_index_legend_div"></div>
 		<div id="viz_div"></div>
 		<script src="dataviz.js"></script>
 	</body>
