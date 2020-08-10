@@ -35,7 +35,7 @@ var left_margin = 170,
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
-// Time scale for x-axis
+// Time scale for X-axis
 // Use 24 hours beginning January 1, 1900 as reference point
 var timeScale = d3.scaleTime()
 					.domain([new Date(1900, 0, 1, 0, 0), new Date(1900, 0, 1, 23, 50)])
@@ -45,16 +45,35 @@ var xAxis = d3.axisTop()
 				.scale(timeScale)
 				.ticks(24)
 				.tickFormat(d3.timeFormat("%I %p"));
-				
-// Threshold scale for speed data
+
+// Data value to indicate either:
+//     1. No speed data value present in input data
+//     2. Speed data value present in input data, but cvalue less than "default" minimum cvalue (i.e., 75.0).
+var NO_DATA = -9999;
+
+// Display mode: 'speed' or 'speed_index'.
+//
+var display_mode = 'speed'; 
+
+// Minium cvalue of data records used to generate visualization.
+// By default, this value is 75.0, the minimum cvalue of data records used in CMP analyses.
+// Un-checking the "restrict_cvalue" checkbox will cause records with ANY cvalue > 0.0 to be used in the viz.
+//
+var DEFAULT_CVALUE = 75.0;
+var min_cvalue = DEFAULT_CVALUE;
+
+// Scales for displaying speed and speed index values.
+// Note that these scales must accommodate NO_DATA values
+//
+// #1 - Threshold scale for speed data
 var speed_scale = d3.scaleThreshold()
 						.domain([0, 10, 20, 30, 40, 50, Infinity])
 						.range(['gray', '#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
-							
+
 // Speed legend labels 
 var speed_legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
 
-// Threshold scale for computed speed index
+// #2 - Threshold scale for computed speed index
 // This is the same scale as used in the CMP express dashboard for speed index, 
 // augmented with domain and range values for 'No Data'
 var speed_index_scale = d3.scaleThreshold()
@@ -62,12 +81,12 @@ var speed_index_scale = d3.scaleThreshold()
 							.range([ "gray", 
 							        "rgba(230, 0, 169,0.9)", "rgba(169, 0, 230,0.9)", "rgba(0, 112, 255,0.9)", 
 	                                "rgba(115, 178, 255,0.9)", "rgba(190, 210, 255,0.9)"]);
-									
+
 var speed_index_legend_labels = ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'];
 
-
-// Utility functions used when parsing timestamp and speed data
+// Utility functions used to parse timestamp and speed data
 //
+// # 1 - Function to parse timestamp 
 // Format of INRIX timestamp is yyyy-mm-dd hh:mm:ss
 // Note: space between 'dd' and 'mm'.
 // Return object with hour and minute, both as integers.
@@ -80,10 +99,8 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
-var NO_DATA = -9999;
-
-// Function to 'safely' return speed value.
-
+// #2 - Function to 'safely' parse and return speed value.
+//
 // Speed data may be missing in some records.
 // When this is the case record this explicitly with the NO_DATA value,
 // so scale and legend functions can work w/o requiring hacks.
@@ -91,6 +108,7 @@ var NO_DATA = -9999;
 // their value to NO_DATA for purposes of generating the visualization.
 //
 function get_speed(d) {
+	/// var temp_str = 'Entering get_speed. TMC = ' + d.tmc;
 	var retval, speed, cvalue;
 	speed = parseFloat(d.speed);
 	cvalue = parseFloat(d.cvalue);
@@ -100,10 +118,14 @@ function get_speed(d) {
 	} else {
 		retval = speed;
 	}
+	// console.log(temp_str + ' retval = ' + retval);
 	return retval;
 } 
-// Similar function to 'safely' return speed index.
+
+// #3 - Function to 'safely' parse speed and spd_limit values, 
+//      and compute and return speed index.
 // See comments on preceeding function.
+//
 function get_speed_index(d) {
 	var retval, speed, cvalue, tmc_rec, spd_limit;
 	speed = parseFloat(d.speed);
@@ -131,21 +153,85 @@ function format_time(time) {
 	return retval;
 }
 
+// Utility function to convert a "US-style" date string into a "yyyy-mm-dd" format date string,
+// the date format used internally by this app, and return it.
+//
+// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
+// Note the following about the datepicker format 'MM d, yy':
+//     MM - full text of name of month, e.g., "January"
+//     d  - day of month, with NO leading zeros
+//     yy - four digit (yes, FOUR-digit) year
+// ==> There is EXACTLY one space between the month name and the day-of-month.
+// ==> There is EXACTLY one space between the comma (',') and the year
+//
+function usDateStrToAppDateStr(usDateStr) {
+	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
+	var months = {  'January'   : '01',
+					'February'  : '02',
+					'March'     : '03',
+					'April'     : '04',
+					'May'       : '05',
+					'June'      : '06',
+					'July'      : '07',
+					'August'    : '08',
+					'September' : '09',
+					'October'   : '10',
+					'November'  : '11',
+					'December'  : '12'
+	}; 
+	
+	retval = '';
+	parts = usDateStr.split(' ');
+	moStr = parts[0];
+	dayStr = parts[1].replace(',','');
+	yrStr = parts[2];
+	outYr = yrStr;
+	outMo = months[moStr];
+	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
+	retval = outYr + '-' + outMo + '-' + outDay;
+	return retval;
+} // usDateStrToAppDateStr()
 
+// Utility function to convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
+// the date format used internally by this app, and return it.
+//
+function jsDateObjToAppDateStr(jsDate) {
+	var year, month, dayOfMonth, appDateStr;
+	year = jsDate.getFullYear();
+	// Remember: JS Date object months are ZERO indexed!
+	month = jsDate.getMonth() + 1;
+	month = (month < 10) ? "0" + month : month;
+	dayOfMonth = jsDate.getDate();
+	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
+	appDateStr = year + '-' + month + '-' + dayOfMonth;
+	return appDateStr;
+} // jsDateObjToAppDateStr()
+
+
+// generate_viz - main function to generate SVG framework to visualize speed/speed-index
+//                data for a given route for a given date.
+//  1. Reads and parses the CSV file containing data about the TMCs for the given route
+//  2. Creates SVG elements to label the TMCs for the route (Y-axis)
+//	3. Reads and parses CSV file containing speed data for the given {route, date} pair
+//  4. Creates "grid" of SVG <rect>s for {TMC, 10-minute-time-slot} pairs; 
+//     these are given a "fill" attribute of "none"
+//  5. Calls symbolize_viz to symbolize the "fill" of the <rect>s according to either
+//     speed or speed index
+//
 function generate_viz(route, date) {
 	current_route = route;
 	var tmc_csv_fn = "data/tmc/" + route + "_tmcs.csv";
 	d3.csv(tmc_csv_fn, function(d) {
-	return {
-		tmc : 		d.tmc,
-		seq_num:	+d.seq_num,
-		from_meas:	parseFloat(d.from_meas),
-		distance:	parseFloat(d.distance),
-		firstnm:	d.firstnm,
-		seg_begin:	d.seg_begin,
-		seg_end:	d.seg_end,
-		spd_limit:	+d.spd_limit
-	};
+		return {
+			tmc : 		d.tmc,
+			seq_num:	+d.seq_num,
+			from_meas:	parseFloat(d.from_meas),
+			distance:	parseFloat(d.distance),
+			firstnm:	d.firstnm,
+			seg_begin:	d.seg_begin,
+			seg_end:	d.seg_end,
+			spd_limit:	+d.spd_limit
+		};
 	}).then(function(data) {
 		tmc_data = data;
 		num_tmcs = tmc_data.length;
@@ -278,7 +364,10 @@ function generate_viz(route, date) {
 	});
 } // generate_viz()
 
+// symbolize_viz - function to symbolize the fill attribute of the "grid" of SVG <rect>s
+//                 generated by generate_viz according to display mode
 function symbolize_viz(display_mode) {
+	// console.log('Entering symbolize_viz.');
 	grid_g.selectAll("rect.cell")
 			.attr("fill", function(d,i){ 
 							var retval;
@@ -292,97 +381,18 @@ function symbolize_viz(display_mode) {
 						});
 } // symbolize_viz()
 
-// usDateStrToAppDateStr: Convert a "US-style" date string into a "yyyy-mm-dd" format date string,
-//                        the date format used internally by this app, and return it.
-//
-// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
-// Note the following about the datepicker format 'MM d, yy':
-//     MM - full text of name of month, e.g., "January"
-//     d  - day of month, with NO leading zeros
-//     yy - four digit (yes, FOUR-digit) year
-// ==> There is EXACTLY one space between the month name and the day-of-month.
-// ==> There is EXACTLY one space between the comma (',') and the year
-//
-function usDateStrToAppDateStr(usDateStr) {
-	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
-	var months = {  'January'   : '01',
-					'February'  : '02',
-					'March'     : '03',
-					'April'     : '04',
-					'May'       : '05',
-					'June'      : '06',
-					'July'      : '07',
-					'August'    : '08',
-					'September' : '09',
-					'October'   : '10',
-					'November'  : '11',
-					'December'  : '12'
-	}; 
-	
-	retval = '';
-	parts = usDateStr.split(' ');
-	moStr = parts[0];
-	dayStr = parts[1].replace(',','');
-	yrStr = parts[2];
-	outYr = yrStr;
-	outMo = months[moStr];
-	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
-	retval = outYr + '-' + outMo + '-' + outDay;
-	return retval;
-} // usDateStrToAppDateStr()
-
-// jsDateObjToAppDateStr: Convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
-//                        the date format used internally by this app, and return it.
-//
-function jsDateObjToAppDateStr(jsDate) {
-	var year, month, dayOfMonth, appDateStr;
-	year = jsDate.getFullYear();
-	// Remember: JS Date object months are ZERO indexed!
-	month = jsDate.getMonth() + 1;
-	month = (month < 10) ? "0" + month : month;
-	dayOfMonth = jsDate.getDate();
-	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
-	appDateStr = year + '-' + month + '-' + dayOfMonth;
-	return appDateStr;
-} // jsDateObjToAppDateStr()
-
-// Display 'mode' var (value = 'speed' or 'speed_index'), 
-// and on-change event handler for associated radio buttons
-var display_mode = 'speed'; 
-$('.mode').change(function(e) {
-	display_mode = $("input[name='mode']:checked").val();
-	if (display_mode === 'speed') {
-		$('#speed_index_legend_div').hide();
-		$('#speed_legend_div').show();
-	} else {
-		// display_mode === 'speed_index'
-		$('#speed_legend_div').hide();
-		$('#speed_index_legend_div').show();
-	}
-	symbolize_viz(display_mode);
-});
-
-// Restrict data used to generate visualization to those records with cvalue > 75.0;
-// this is minimum cvalue used to include data for CMP analyses.
-// Un-checking the "restrict_cvalue" will cause data with any cvalue > 0.0 to be used in the viz.
-var DEFAULT_CVALUE = 75.0;
-var min_cvalue = DEFAULT_CVALUE;
-$('#restrict_cvalue').change(function(e) {
-	if (e.target.checked === true) {
-		min_cvalue = DEFAULT_CVALUE;
-	} else {
-		min_cvalue = 0.0;
-	}
-	// TBD: Not sure why just re-symbolizing the data doesn't work; it should.
-	// symbolize_viz(display_mode);
-	generate_viz(current_route, current_date);
-});
 
 // Function: initialize
-// Summary: read configuration file
-//			populate select box for route and define event handler for it
-//			configure datepicker UI control and define event handler for it 
-//          generate SVG framework, including X-axis
+// Summary: 
+//			1. Read configuration file
+//			2. Populate select box for route and define event handler for it
+//			3. Configure datepicker UI control on-close event handler for it 
+//          4. Define on-change event handler for "display mode" radio buttons
+//          5. Define on=change event handler for checkbox to limit cvalue of
+//             data records used to produce viz
+//          6. Generate SVG framework for visualization, including X-axis (time axis)
+//          7. Call generate_viz to generate visuzliazation for 'default' route and date
+//
 function initialize() {
 	d3.json("config.json").then(function(config) {
 		// Populate the <select> box for route
@@ -431,12 +441,38 @@ function initialize() {
 				
 				route = $("#select_route option:selected").attr('value');
 				current_route = route;
-
 				date  = usDateStrToAppDateStr(dateText);
 				current_date = date;
 				generate_viz(route, date);
 		});
 		
+		// Define on-change event handler for "isplay mode" radio buttons
+		$('.mode').change(function(e) {
+			display_mode = $("input[name='mode']:checked").val();
+			if (display_mode === 'speed') {
+				$('#speed_index_legend_div').hide();
+				$('#speed_legend_div').show();
+			} else {
+				// display_mode === 'speed_index'
+				$('#speed_legend_div').hide();
+				$('#speed_index_legend_div').show();
+			}
+			symbolize_viz(display_mode);
+		});
+		
+		// Define on-change event handler for "restrict_cvalue" checkbox
+		$('#restrict_cvalue').change(function(e) {
+			if (e.target.checked === true) {
+				min_cvalue = DEFAULT_CVALUE;
+			} else {
+				min_cvalue = 0.0;
+			}
+			// TBD: Not sure why just re-symbolizing the data doesn't work; one would think it should...
+			// symbolize_viz(display_mode);
+			generate_viz(current_route, current_date);
+		});
+
+
 		// Generate SVG legends for speed and speed index,
 		// and hide the one for speed index at init time.
 		var svg_leg_speed = d3.select('#speed_legend_div')
