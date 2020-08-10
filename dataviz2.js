@@ -181,8 +181,16 @@ function make_date_text(date) {
 	return month + ' ' + day + ', ' + year;
 }
 
-// Read and render the data for the selected route for one day
-// Parameter 'date_ix' is the index into the array of dates in the config object
+// Function: get_and_render_data_for_date
+//
+// Read and render the data for the currently selected route for one day
+// Parameter 'date_ix' is an index into the array of dates in the config object;
+// it indicates which day's worth of data is to be rendered.
+//
+// Note that when the selected route changes, init_viz_for_route is called;
+// this sets up the visualization framework for the new route. Once this
+// has been completed, get_and_render_data_for_date is called for each
+// day's worth of data to be rendered.
 //
 function get_and_render_data_for_date(route, date_ix) {
 	if (route !== current_route) return;
@@ -254,9 +262,18 @@ function get_and_render_data_for_date(route, date_ix) {
 			FRAME_INTERVAL);
 			timer_ids.push(tid);
 	});
-}
+} //get_and_render_data_for_date()
 
-
+// Function: init_viz_for_route
+//
+// 1. Reads and parses the CSV file containing information about the TMCs for the route
+// 2. sets up SVG <text> elements to label the TMCs in the left-hand 'pane'
+// 3. Reads and parses the CSV file containing the first day's worth of speed/travel-time
+//    data for the route
+// 4. Generates a "grid" of SVG <rect>s for the set of {TMC, 10-minute-time-slot} pairs;
+//    these are given a "fill" attribute of "none" here, and are populated with a fill
+//    representing the relevant speed or speed_limit in get_and_render_data_for_date.
+//
 function init_viz_for_route(route) {
 	current_route = route;
 	var tmc_csv_fn = "data/tmc/" + route + "_tmcs.csv";
@@ -355,8 +372,13 @@ function init_viz_for_route(route) {
 } // init_viz_for_route()
 
 // Function: initialize
-// Summary: read configuration file, populate select boxes and define event handers for them,
-//          generate SVG framework, and X-axis
+// Summary: 
+//	1. Read configuration file
+//  2. Populate select box for route, and define on-change event handler for it
+//  3. Generate "invariant" parts of SVG framework, e.g., X-axis (time axis)
+//  4. Call init_viz_for_route and get_and_render_data_for_date to 
+//     kick off the animated visualization
+//
 function initialize() {
 	d3.json("config.json").then(function(config) {
 		config_data = config;
