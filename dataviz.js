@@ -262,7 +262,7 @@ function generate_viz(route, date) {
 					.attr("font-size", 10)
 					.text(function(d, i) { return d.firstnm; });
 					
-		var speed_csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
+		var speed_csv_fn = "data/speed/" + current_route + "/" + current_route + "_" + date + ".csv";
 	
 		d3.csv(speed_csv_fn, function(d) {
 			return {
