@@ -413,27 +413,66 @@ function initialize() {
 			timer_ids.push(tid);
 		});
 		
-		// Generate SVG legend
-		svg_leg = d3.select('#legend_div')
+		// Define on-change event handler for "display mode" radio buttons.
+		// Note that this merely caches the newly specified display mode;
+		// the change is not reflected until the next day's worth of data
+		// is read in and rendered.
+		$('.mode').change(function(e) {
+			display_mode = $("input[name='mode']:checked").val();
+		});
+		
+		// Define on-change event handler for "restrict_cvalue" checkbox.
+		// Note that this merely caches the new minimum cvalue;
+		// the change is not reflected until the next day's worth
+		// of data is read in and rendered.
+		$('#restrict_cvalue').change(function(e) {
+			if (e.target.checked === true) {
+				min_cvalue = DEFAULT_CVALUE;
+			} else {
+				min_cvalue = 0.0;
+			}
+		});
+
+
+		// Generate SVG legends for speed and speed index,
+		// and hide the one for speed index at init time.
+		var svg_leg_speed  = d3.select('#speed_legend_div')
 			.append("svg")
 			.attr("id", "legend_svg")
 			.attr("height", 70)
 			.attr("width", 1000);
-			
-		svg_leg.append("g")
+		svg_leg_speed.append("g")
 			.attr("class", "legendQuant")
 			.attr("transform", "translate(170,20)");
-			
-		var legend = d3.legendColor()
+		var speed_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
 			.labels(speed_legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
 			.scale(speed_scale);
+		svg_leg_speed.select(".legendQuant")
+			.call(speed_legend);
 			
-		svg_leg.select(".legendQuant")
-			.call(legend);
-		
+		var svg_leg_speed_index = d3.select('#speed_index_legend_div')
+			.append("svg")
+			.attr("id", "speed_ix_legend_svg")
+			.attr("height", 70)
+			.attr("width", 1000);
+		svg_leg_speed_index.append("g")
+			.attr("class", "legendQuant")
+			.attr("transform", "translate(170,20)");
+		var speed_index_legend = d3.legendColor()
+			.labelFormat(d3.format(".0f"))
+			.labels(speed_index_legend_labels)
+			.shapeWidth(100)
+			.orient('horizontal')
+			.scale(speed_index_scale);
+		svg_leg_speed_index.select(".legendQuant")
+			.call(speed_index_legend);
+			
+		$('#speed_index_legend_div').hide();
+
+
 		// Generate the framework for the main SVG visualization, including the (invariant) X-axis
 		svg = d3.select("#viz_div")
 			.append("svg")
