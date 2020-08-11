@@ -338,7 +338,7 @@ function init_viz_for_route(route) {
 					
 					
 		var first_date = config_data.dates[0].value;
-		var speed_csv_fn = "data/speed/" + current_route + "_" + first_date + ".csv";
+		var speed_csv_fn = "data/speed/" + current_route + "/" + current_route + "_" + first_date + ".csv";
 		
 		d3.csv(speed_csv_fn, function(d) {
 			return {
