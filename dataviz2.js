@@ -195,7 +195,7 @@ function get_and_render_data_for_date(route, date_ix) {
 	if (route !== current_route) return;
 	var date, speed_csv_fn;
 	date = config_data['dates'][date_ix].value;
-	speed_csv_fn = "data/speed/" + current_route + "_" + date + ".csv";
+	speed_csv_fn = "data/speed/" + current_route + "/" + current_route + "_" + date + ".csv";
 	// console.log('Initiating load of ' + speed_csv_fn);
 	d3.csv(speed_csv_fn, function(d) {
 	return {
