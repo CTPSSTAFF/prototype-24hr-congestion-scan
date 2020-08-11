@@ -6,6 +6,8 @@
 //
 // Author: Ben Krepp
 
+var debugLevel = 1;
+
 // Data stores for TMC and speed data read in
 var tmc_data = [],
     speed_data = [];
@@ -18,6 +20,8 @@ var num_tmcs = 100;
 // Globals used to generate the data viz
 // SVG object containing entire viz
 var svg; 
+// SVG <g> object containing grid of symbolized <rect>s for speed or speed index
+var grid_g;
 var cell_w = 10,
     cell_h = 10;
 var recs_per_hour = 6;
@@ -31,7 +35,7 @@ var left_margin = 170,
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
-// Time scale for x-axis
+// Time scale for X-axis
 // Use 24 hours beginning January 1, 1900 as reference point
 var timeScale = d3.scaleTime()
 					.domain([new Date(1900, 0, 1, 0, 0), new Date(1900, 0, 1, 23, 50)])
@@ -41,18 +45,48 @@ var xAxis = d3.axisTop()
 				.scale(timeScale)
 				.ticks(24)
 				.tickFormat(d3.timeFormat("%I %p"));
-				
-// Basic threshold scale for speed data
-var basic_speed_scale = d3.scaleThreshold()
-							.domain([0, 10, 20, 30, 40, 50, Infinity])
-							.range(['gray', '#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
-							
-// Legend labels 
-var legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
 
+// Data value to indicate either:
+//     1. No speed data value present in input data
+//     2. Speed data value present in input data, but cvalue less than "default" minimum cvalue (i.e., 75.0).
+var NO_DATA = -9999;
 
-// Utility functions used when parsing timestamp and speed data
+// Display mode: 'speed' or 'speed_index'.
 //
+var display_mode = 'speed'; 
+
+// Minium cvalue of data records used to generate visualization.
+// By default, this value is 75.0, the minimum cvalue of data records used in CMP analyses.
+// Un-checking the "restrict_cvalue" checkbox will cause records with ANY cvalue > 0.0 to be used in the viz.
+//
+var DEFAULT_CVALUE = 75.0;
+var min_cvalue = DEFAULT_CVALUE;
+
+// Scales for displaying speed and speed index values.
+// Note that these scales must accommodate NO_DATA values
+//
+// #1 - Threshold scale for speed data
+var speed_scale = d3.scaleThreshold()
+						.domain([0, 10, 20, 30, 40, 50, Infinity])
+						.range(['gray', '#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
+
+// Speed legend labels 
+var speed_legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
+
+// #2 - Threshold scale for computed speed index
+// This is the same scale as used in the CMP express dashboard for speed index, 
+// augmented with domain and range values for 'No Data'
+var speed_index_scale = d3.scaleThreshold()
+							.domain([0.400, 0.500, 0.700, 0.900, Infinity])
+							.range([ "gray", 
+							        "rgba(230, 0, 169,0.9)", "rgba(169, 0, 230,0.9)", "rgba(0, 112, 255,0.9)", 
+	                                "rgba(115, 178, 255,0.9)", "rgba(190, 210, 255,0.9)"]);
+
+var speed_index_legend_labels = ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'];
+
+// Utility functions used to parse timestamp and speed data
+//
+// # 1 - Function to parse timestamp 
 // Format of INRIX timestamp is yyyy-mm-dd hh:mm:ss
 // Note: space between 'dd' and 'mm'.
 // Return object with hour and minute, both as integers.
@@ -65,8 +99,8 @@ function get_time_from_timestamp(tstamp) {
 	return { 'hr' : hr, 'min' : min };
 }
 
-var NO_DATA = -9999;
-
+// #2 - Function to 'safely' parse and return speed value.
+//
 // Speed data may be missing in some records.
 // When this is the case record this explicitly with the NO_DATA value,
 // so scale and legend functions can work w/o requiring hacks.
@@ -74,16 +108,38 @@ var NO_DATA = -9999;
 // their value to NO_DATA for purposes of generating the visualization.
 //
 function get_speed(d) {
-	var retval;
-	var temp = parseFloat(d.speed);
-	if (isNaN(temp) || d.cvalue < 75.0) {
+	/// var temp_str = 'Entering get_speed. TMC = ' + d.tmc;
+	var retval, speed, cvalue;
+	speed = parseFloat(d.speed);
+	cvalue = parseFloat(d.cvalue);
+	if (isNaN(speed) || cvalue < min_cvalue) {
 		retval = NO_DATA;
 		// console.log('Mapping ' + temp + ' to NO_DATA.');
 	} else {
+		retval = speed;
+	}
+	// console.log(temp_str + ' retval = ' + retval);
+	return retval;
+} 
+
+// #3 - Function to 'safely' parse speed and spd_limit values, 
+//      and compute and return speed index.
+// See comments on preceeding function.
+//
+function get_speed_index(d) {
+	var retval, speed, cvalue, tmc_rec, spd_limit;
+	speed = parseFloat(d.speed);
+	cvalue = parseFloat(d.cvalue);
+	if (isNaN(speed) || cvalue < min_cvalue) {
+		retval = NO_DATA;
+	} else {
+		tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+		spd_limit = tmc_rec['spd_limit'];
+		temp = speed / spd_limit;
 		retval = temp;
 	}
 	return retval;
-} 
+}
 
 // Utility function to format 'time' values for on-hover output
 //
@@ -97,20 +153,85 @@ function format_time(time) {
 	return retval;
 }
 
+// Utility function to convert a "US-style" date string into a "yyyy-mm-dd" format date string,
+// the date format used internally by this app, and return it.
+//
+// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
+// Note the following about the datepicker format 'MM d, yy':
+//     MM - full text of name of month, e.g., "January"
+//     d  - day of month, with NO leading zeros
+//     yy - four digit (yes, FOUR-digit) year
+// ==> There is EXACTLY one space between the month name and the day-of-month.
+// ==> There is EXACTLY one space between the comma (',') and the year
+//
+function usDateStrToAppDateStr(usDateStr) {
+	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
+	var months = {  'January'   : '01',
+					'February'  : '02',
+					'March'     : '03',
+					'April'     : '04',
+					'May'       : '05',
+					'June'      : '06',
+					'July'      : '07',
+					'August'    : '08',
+					'September' : '09',
+					'October'   : '10',
+					'November'  : '11',
+					'December'  : '12'
+	}; 
+	
+	retval = '';
+	parts = usDateStr.split(' ');
+	moStr = parts[0];
+	dayStr = parts[1].replace(',','');
+	yrStr = parts[2];
+	outYr = yrStr;
+	outMo = months[moStr];
+	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
+	retval = outYr + '-' + outMo + '-' + outDay;
+	return retval;
+} // usDateStrToAppDateStr()
+
+// Utility function to convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
+// the date format used internally by this app, and return it.
+//
+function jsDateObjToAppDateStr(jsDate) {
+	var year, month, dayOfMonth, appDateStr;
+	year = jsDate.getFullYear();
+	// Remember: JS Date object months are ZERO indexed!
+	month = jsDate.getMonth() + 1;
+	month = (month < 10) ? "0" + month : month;
+	dayOfMonth = jsDate.getDate();
+	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
+	appDateStr = year + '-' + month + '-' + dayOfMonth;
+	return appDateStr;
+} // jsDateObjToAppDateStr()
+
+
+// generate_viz - main function to generate SVG framework to visualize speed/speed-index
+//                data for a given route for a given date.
+//  1. Reads and parses the CSV file containing data about the TMCs for the given route
+//  2. Creates SVG elements to label the TMCs for the route (Y-axis)
+//	3. Reads and parses CSV file containing speed data for the given {route, date} pair
+//  4. Creates "grid" of SVG <rect>s for {TMC, 10-minute-time-slot} pairs; 
+//     these are given a "fill" attribute of "none"
+//  5. Calls symbolize_viz to symbolize the "fill" of the <rect>s according to either
+//     speed or speed index
+//
 function generate_viz(route, date) {
 	current_route = route;
 	var tmc_csv_fn = "data/tmc/" + route + "_tmcs.csv";
 	d3.csv(tmc_csv_fn, function(d) {
-	return {
-		tmc : 		d.tmc,
-		seq_num:	+d.seq_num,
-		from_meas:	parseFloat(d.from_meas),
-		distance:	parseFloat(d.distance),
-		firstnm:	d.firstnm,
-		seg_begin:	d.seg_begin,
-		seg_end:	d.seg_end,
-		spd_limit:	+d.spd_limit
-	};
+		return {
+			tmc : 		d.tmc,
+			seq_num:	+d.seq_num,
+			from_meas:	parseFloat(d.from_meas),
+			distance:	parseFloat(d.distance),
+			firstnm:	d.firstnm,
+			seg_begin:	d.seg_begin,
+			seg_end:	d.seg_end,
+			spd_limit:	+d.spd_limit
+		};
 	}).then(function(data) {
 		tmc_data = data;
 		num_tmcs = tmc_data.length;
@@ -146,9 +267,10 @@ function generate_viz(route, date) {
 		d3.csv(speed_csv_fn, function(d) {
 			return {
 				tmc : 	d.tmc,
+				tstamp:	d.tstamp, // for development+debug
 				time: 	get_time_from_timestamp(d.tstamp),
 				speed:	get_speed(d),
-				cvalue:	d.cvalue
+				cvalue:	(d.cvalue == null) ? NO_DATA : +d.cvalue	// Yes, sometimes the cvalue field is empty... :-(
 				};
 			}).then(function(data) {
 				speed_data = data;
@@ -196,10 +318,12 @@ function generate_viz(route, date) {
 					$('#viz_div #grid').remove();
 				}
 				// Grid in which the speed data for the new day is displayed
-				var grid_g = svg.append("g")
+				grid_g = svg.append("g")
 					.attr("id", "grid")
 					.attr("transform", "translate(" + left_margin + "," + top_margin + ")");
 		
+				// Generate a grid of SVG <rect>s, with no fill and no border ("stroke"),
+				// to be symbolized subsequently by the function symbolize_viz() 
 				grid_g.selectAll("rect.cell")
 					.data(speed_data)
 					.enter()
@@ -211,90 +335,64 @@ function generate_viz(route, date) {
 								return tmp;
 							})
 						.attr("y", function(d,i) { 
-									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });                                   
+									var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
 									var tmc_seq = tmc_rec['seq_num'];
 									var tmp = tmc_seq * cell_h;
 									return tmp;
 								})
 						.attr("width", cell_w)
 						.attr("height", cell_h)
-						.attr("fill", function(d,i){ return basic_speed_scale(get_speed(d)); })
-					// The following is temporary, for use during development
+						.attr("fill", "none") 	// 'empty' grid
 					.append("title")
 						.text(function(d,i) { 
-								var tmp; 
+								var tmp, tmc_rec, spd_limit, spd_index;
 								tmp = 'tmc: ' + d.tmc + '\n';
 								tmp += format_time(d.time) + '\n';
 								tmp += 'speed: ';
 								tmp +=  (d.speed !== NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
+								tmp += '\n';
+								tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+								var spd_limit = tmc_rec['spd_limit'];
+								spd_index = (d.speed / spd_limit).toFixed(2);
+								tmp += 'speed index: ';
+								tmp +=  (d.speed !== NO_DATA) ? spd_index : 'NO DATA';
 								return tmp; 
 							});
+				// Having generated the SVG grid, now symbolize it depending upon display_mode
+				symbolize_viz(display_mode);
 		});
 	});
 } // generate_viz()
 
-
-// usDateStrToAppDateStr: Convert a "US-style" date string into a "yyyy-mm-dd" format date string,
-//                        the date format used internally by this app, and return it.
-//
-// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
-// Note the following about the datepicker format 'MM d, yy':
-//     MM - full text of name of month, e.g., "January"
-//     d  - day of month, with NO leading zeros
-//     yy - four digit (yes, FOUR-digit) year
-// ==> There is EXACTLY one space between the month name and the day-of-month.
-// ==> There is EXACTLY one space between the comma (',') and the year
-//
-function usDateStrToAppDateStr(usDateStr) {
-	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
-	var months = {  'January'   : '01',
-					'February'  : '02',
-					'March'     : '03',
-					'April'     : '04',
-					'May'       : '05',
-					'June'      : '06',
-					'July'      : '07',
-					'August'    : '08',
-					'September' : '09',
-					'October'   : '10',
-					'November'  : '11',
-					'December'  : '12'
-	}; 
-	
-	retval = '';
-	parts = usDateStr.split(' ');
-	moStr = parts[0];
-	dayStr = parts[1].replace(',','');
-	yrStr = parts[2];
-	outYr = yrStr;
-	outMo = months[moStr];
-	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
-	retval = outYr + '-' + outMo + '-' + outDay;
-	return retval;
-} // usDateStrToAppDateStr()
-
-// jsDateObjToAppDateStr: Convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
-//                        the date format used internally by this app, and return it.
-//
-function jsDateObjToAppDateStr(jsDate) {
-	var year, month, dayOfMonth, appDateStr;
-	year = jsDate.getFullYear();
-	// Remember: JS Date object months are ZERO indexed!
-	month = jsDate.getMonth() + 1;
-	month = (month < 10) ? "0" + month : month;
-	dayOfMonth = jsDate.getDate();
-	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
-	appDateStr = year + '-' + month + '-' + dayOfMonth;
-	return appDateStr;
-} // jsDateObjToAppDateStr()
-
+// symbolize_viz - function to symbolize the fill attribute of the "grid" of SVG <rect>s
+//                 generated by generate_viz according to display mode
+function symbolize_viz(display_mode) {
+	// console.log('Entering symbolize_viz.');
+	grid_g.selectAll("rect.cell")
+			.attr("fill", function(d,i){ 
+							var retval;
+							if (display_mode === 'speed') {
+								retval = speed_scale(get_speed(d));
+							} else {
+								// display_mode === 'speed_index'
+								retval = speed_index_scale(get_speed_index(d)); 
+							}
+							return retval;
+						});
+} // symbolize_viz()
 
 
 // Function: initialize
-// Summary: read configuration file
-//			populate select box for route and define event handler for it
-//			configure datepicker UI control and define event handler for it 
-//          generate SVG framework, including X-axis
+// Summary: 
+//			1. Read configuration file
+//			2. Populate select box for route and define event handler for it
+//			3. Configure datepicker UI control on-close event handler for it 
+//          4. Define on-change event handler for "display mode" radio buttons
+//          5. Define on=change event handler for checkbox to limit cvalue of
+//             data records used to produce viz
+//          6. Generate SVG framework for visualization, including X-axis (time axis)
+//          7. Call generate_viz to generate visuzliazation for 'default' route and date
+//
 function initialize() {
 	d3.json("config.json").then(function(config) {
 		// Populate the <select> box for route
@@ -309,21 +407,6 @@ function initialize() {
 			}
             oSelect.options.add(oOption); 
         }
-		
-/* 
-		// Populate the <select> box for date - commented out
-		// REPLACED by datepicker control; see below
-        oSelect = document.getElementById("select_date");
-        for (i = 0; i < config.dates.length; i++) {
-            oOption = document.createElement("OPTION");
-            oOption.value = config.dates[i].value;
-            oOption.text = config.dates[i].text;
-			if (config.dates[i].selected === true) {
-					oOption.selected = true;
-			}
-			oSelect.options.add(oOption);
-        }
-*/
 
 		// Configure datepicker control (replacement for select_date combo box)
 		$('#datepicker').datepicker({ dateFormat: 'MM d, yy' });
@@ -337,18 +420,7 @@ function initialize() {
 		$('#datepicker').datepicker("option", "defaultDate", minDate);
 		$('#datepicker').datepicker( "setDate", minDate);
 
-/*
-		//  Event handler for route select box - OLD FORM (commented out)
-		$('#select_route').change(function(e) {
-			var route, date;
-			route = $("#select_route option:selected").attr('value');
-			current_route = route;
-			date = $("#select_date option:selected").attr('value');
-			current_date = date;
-			generate_viz(route, date);
-		});
-*/
-		// Event handler for route select box - NEW FORM:
+		// Event handler for route select box 
 		$('#select_route').change(function(e) {
 			var route, jsDate, date;
 			route = $("#select_route option:selected").attr('value');
@@ -360,18 +432,6 @@ function initialize() {
 			generate_viz(route, date);
 		});
 
-/* 
-		// Event handler for date select box - replaced by datepicker "close" handler
-		$('#select_date').change( function(e) {
-			var route, date;
-			route = $("#select_route option:selected").attr('value');
-			current_route = route;
-			date = $("#select_date option:selected").attr('value');
-			current_date = date;
-			generate_viz(route, date);
-		});
-*/
-
 		// Define "close" handler for datepicker - fired when a new date is selected
 		$('#datepicker').datepicker("option", "onClose", 
 			function(dateText, inst) {
@@ -381,33 +441,75 @@ function initialize() {
 				
 				route = $("#select_route option:selected").attr('value');
 				current_route = route;
-
 				date  = usDateStrToAppDateStr(dateText);
 				current_date = date;
 				generate_viz(route, date);
 		});
 		
+		// Define on-change event handler for "display mode" radio buttons
+		$('.mode').change(function(e) {
+			display_mode = $("input[name='mode']:checked").val();
+			if (display_mode === 'speed') {
+				$('#speed_index_legend_div').hide();
+				$('#speed_legend_div').show();
+			} else {
+				// display_mode === 'speed_index'
+				$('#speed_legend_div').hide();
+				$('#speed_index_legend_div').show();
+			}
+			symbolize_viz(display_mode);
+		});
 		
-		// Generate SVG legend
-		svg_leg = d3.select('#legend_div')
+		// Define on-change event handler for "restrict_cvalue" checkbox
+		$('#restrict_cvalue').change(function(e) {
+			if (e.target.checked === true) {
+				min_cvalue = DEFAULT_CVALUE;
+			} else {
+				min_cvalue = 0.0;
+			}
+			// TBD: Not sure why just re-symbolizing the data doesn't work; one would think it should...
+			// symbolize_viz(display_mode);
+			generate_viz(current_route, current_date);
+		});
+
+
+		// Generate SVG legends for speed and speed index,
+		// and hide the one for speed index at init time.
+		var svg_leg_speed = d3.select('#speed_legend_div')
 			.append("svg")
-			.attr("id", "legend_svg")
+			.attr("id", "speed_legend_svg")
 			.attr("height", 70)
 			.attr("width", 1000);
-			
-		svg_leg.append("g")
+		svg_leg_speed.append("g")
 			.attr("class", "legendQuant")
 			.attr("transform", "translate(170,20)");
-			
-		var legend = d3.legendColor()
+		var speed_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(legend_labels)
+			.labels(speed_legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
-			.scale(basic_speed_scale);
+			.scale(speed_scale);
+		svg_leg_speed.select(".legendQuant")
+			.call(speed_legend);
 			
-		svg_leg.select(".legendQuant")
-			.call(legend);
+		var svg_leg_speed_index = d3.select('#speed_index_legend_div')
+			.append("svg")
+			.attr("id", "speed_ix_legend_svg")
+			.attr("height", 70)
+			.attr("width", 1000);
+		svg_leg_speed_index.append("g")
+			.attr("class", "legendQuant")
+			.attr("transform", "translate(170,20)");
+		var speed_index_legend = d3.legendColor()
+			.labelFormat(d3.format(".0f"))
+			.labels(speed_index_legend_labels)
+			.shapeWidth(100)
+			.orient('horizontal')
+			.scale(speed_index_scale);
+		svg_leg_speed_index.select(".legendQuant")
+			.call(speed_index_legend);
+			
+		$('#speed_index_legend_div').hide();
 		
 		// Generate the framework for the main SVG visualization, including the (invariant) X-axis
 		svg = d3.select("#viz_div")
@@ -435,9 +537,10 @@ function initialize() {
 		}
 		
 		// And kick things off with the viz for I-93 NB on 1 March, 2020:
-		generate_viz('i93_nb', '2020-03-01');
+		current_route = 'i93_nb';
+		current_date = '2020-03-01';
+		generate_viz(current_route, current_date);
 	});
-	
 } // initialize()
 
 initialize();

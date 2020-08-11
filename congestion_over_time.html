@@ -29,15 +29,17 @@
 				<select id="select_route">
 					 <option value="0">Select a route</option> 
 				</select>
-			<!-- 	
-				&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" id="cvalue_limit" name="scales">
-                <label for="cvalue_limit">Only use data with C-value >= 75.</label>
-			-->
+				&nbsp;&nbsp;Select Metric:
+				&nbsp;Speed:&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
+				&nbsp;Speed Index:&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
+				
+				&nbsp;
+				<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
+                <label for="restrict_cvalue">Only use data with C-value >= 75</label>
 			</span>
 		</div>
-		<div id="legend_div">
-		</div>
+		<div id="speed_legend_div"></div>
+		<div id="speed_index_legend_div"></div>
 		<div id="viz_div"></div>
 		<script src="dataviz2.js"></script>
 	</body>

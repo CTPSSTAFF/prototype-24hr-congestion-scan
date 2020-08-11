@@ -34,6 +34,10 @@
 
 /* Rules for app itself */
 
+#datepicker {
+	width: 125px;
+}
+
 #options {
 	margin-bottom: 10px;
 }

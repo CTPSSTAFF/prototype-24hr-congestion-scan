@@ -31,3 +31,7 @@
 	z-index:10;
 }
 /* End of rules for CTPS "branding" */
+
+#datepicker {
+	width: 125px;
+}
