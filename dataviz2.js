@@ -119,6 +119,7 @@ function get_time_from_timestamp(tstamp) {
 //
 function get_speed(d) {
 	/// var temp_str = 'Entering get_speed. TMC = ' + d.tmc;
+	// console.log('Entering get_speed; min_cvalue = ' + min_cvalue);
 	var retval, speed, cvalue;
 	speed = parseFloat(d.speed);
 	cvalue = parseFloat(d.cvalue);
@@ -137,6 +138,7 @@ function get_speed(d) {
 // See comments on preceeding function.
 //
 function get_speed_index(d) {
+	// console.log('Entering get_speed_index; min_cvalue = ' + min_cvalue);
 	var retval, speed, cvalue, tmc_rec, spd_limit;
 	speed = parseFloat(d.speed);
 	cvalue = parseFloat(d.cvalue);
@@ -163,13 +165,9 @@ function format_time(time) {
 	return retval;
 }
 
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-
-// Given an INIRX format date (yyyy-mm-dd), return a US-style date string
+// Utility function which, given an INIRX format date (yyyy-mm-dd) string, 
+// returns a US-style date string
+//
 function make_date_text(date) {
 	var parts = date.split('-');
 	var year = parts[0]
@@ -180,6 +178,7 @@ function make_date_text(date) {
 	var month = months[month_num-1]; // Recall 0-based array indexing
 	return month + ' ' + day + ', ' + year;
 }
+
 
 // Function: get_and_render_data_for_date
 //
@@ -210,26 +209,36 @@ function get_and_render_data_for_date(route, date_ix) {
 		var date_text = make_date_text(date);
 		$('#app_caption_date').html(date_text);
 		
-			// Grotesque work-around for INRIX data outage on 29-31 March 2020:
-			if (date === '2020-03-29' || date === '2020-03-30' || date === '2020-03-31') {
-				if ($('#viz_div #data_outage').length === 0) {
-					var outage_g = svg.append("g")
-						.attr("id", "data_outage")
-						.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
-						.append("rect")
-							.attr("class", "data_outage")
-							.attr("x", 0)
-							.attr("y", 0)
-							.attr("width", num_time_recs*cell_w)
-							.attr("height", top_margin + (cell_h * num_tmcs))
-							.attr("fill", "gray");
-				}
-				// Once we've inserted this 24-hour hack, there's nothing more to do: return.
-				return;
-			} else if ($('#viz_div #data_outage').length > 0) {
-				// Date is not 29-31 March 2020; if #data_outage hack is present, remove it
-				$('#viz_div #data_outage').remove();
+		// Set legend according to display mode
+		if (display_mode === 'speed') {
+			$('#speed_index_legend_div').hide();
+			$('#speed_legend_div').show();
+		} else {
+			// display_mode === 'speed_index'
+			$('#speed_legend_div').hide();
+			$('#speed_index_legend_div').show();
+		}
+		
+		// Grotesque work-around for INRIX data outage on 29-31 March 2020:
+		if (date === '2020-03-29' || date === '2020-03-30' || date === '2020-03-31') {
+			if ($('#viz_div #data_outage').length === 0) {
+				var outage_g = svg.append("g")
+					.attr("id", "data_outage")
+					.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
+					.append("rect")
+						.attr("class", "data_outage")
+						.attr("x", 0)
+						.attr("y", 0)
+						.attr("width", num_time_recs*cell_w)
+						.attr("height", top_margin + (cell_h * num_tmcs))
+						.attr("fill", "gray");
 			}
+			// Once we've inserted this 24-hour hack, there's nothing more to do: return.
+			return;
+		} else if ($('#viz_div #data_outage').length > 0) {
+			// Date is not 29-31 March 2020; if #data_outage hack is present, remove it
+			$('#viz_div #data_outage').remove();
+		}
 		
 		// Get on with the business of rendering real data.
 		grid_g.selectAll("rect.cell").data(data).enter();
@@ -251,7 +260,16 @@ function get_and_render_data_for_date(route, date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
-			.attr("fill", function(d,i) { return speed_scale(get_speed(d)); });
+			.attr("fill", function(d,i) { 
+							var retval;
+							if (display_mode === 'speed') {
+								retval = speed_scale(get_speed(d));
+							} else {
+								// display_mode === 'speed_index'
+								retval = speed_index_scale(get_speed_index(d)); 
+							}
+							return retval;
+						});
 	}).then(function() {
 		var tid = setTimeout(
 					function() {
