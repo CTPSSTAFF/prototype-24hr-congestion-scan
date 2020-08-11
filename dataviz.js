@@ -446,7 +446,7 @@ function initialize() {
 				generate_viz(route, date);
 		});
 		
-		// Define on-change event handler for "isplay mode" radio buttons
+		// Define on-change event handler for "display mode" radio buttons
 		$('.mode').change(function(e) {
 			display_mode = $("input[name='mode']:checked").val();
 			if (display_mode === 'speed') {
