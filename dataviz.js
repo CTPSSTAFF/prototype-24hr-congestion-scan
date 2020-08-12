@@ -435,7 +435,6 @@ function initialize() {
 		// Define "close" handler for datepicker - fired when a new date is selected
 		$('#datepicker').datepicker("option", "onClose", 
 			function(dateText, inst) {
-				var _DEBUG_HOOK_ = 0;
 				var date;
 				if (dateText === "") return;
 				
