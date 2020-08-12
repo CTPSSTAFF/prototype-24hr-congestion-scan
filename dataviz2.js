@@ -37,62 +37,31 @@ var left_margin = 170,
 var w = left_margin + (cell_w * num_time_recs),
     h = top_margin + (cell_h * num_tmcs);
 
-
 // Time scale for X-axis
 // Use 24 hours beginning January 1, 1900 as reference point
-var timeScale = d3.scaleTime()
+var timeScale =	 d3.scaleTime()
 					.domain([new Date(1900, 0, 1, 0, 0), new Date(1900, 0, 1, 23, 50)])
 					.range([0, cell_w * num_time_recs]);
+					
 // X-axis - see comment in code below labeled "NOTE"
 var xAxis = d3.axisTop()
 				.scale(timeScale)
 				.ticks(24)
 				.tickFormat(d3.timeFormat("%I %p"));
-				
-// Data value to indicate either:
-//     1. No speed data value present in input data
-//     2. Speed data value present in input data, but cvalue less than "default" minimum cvalue (i.e., 75.0).
-var NO_DATA = -9999;
 
 // Display mode: 'speed' or 'speed_index'.
 //
 var display_mode = 'speed'; 
 
 // Minium cvalue of data records used to generate visualization.
-// By default, this value is 75.0, the minimum cvalue of data records used in CMP analyses.
-// Un-checking the "restrict_cvalue" checkbox will cause records with ANY cvalue > 0.0 to be used in the viz.
 //
-var DEFAULT_CVALUE = 75.0;
-var min_cvalue = DEFAULT_CVALUE;
+var min_cvalue = csCommon.DEFAULT_CVALUE;
 
 // Timer(s) to be stopped when new route is selected.
 var timer_ids = [];
 
 // One new frame of visualization is rendered every 3000 milliseconds (3 seconds).
 var FRAME_INTERVAL = 3000;
-
-// Scales for displaying speed and speed index values.
-// Note that these scales must accommodate NO_DATA values
-//
-// #1 - Threshold scale for speed data
-var speed_scale = d3.scaleThreshold()
-						.domain([0, 10, 20, 30, 40, 50, Infinity])
-						.range(['gray', '#cc1414', '#ff4719', '#ffa319', '#ffe019', '#affc19', '#32fa32']); 
-
-// Sped legend labels
-var speed_legend_labels = ['No Data', '< 10 MPH', '10-20 MPH', '20-30 MPH', '30-40 MPH', '40-50 MPH', '> 50 MPH'];
-
-// #2 - Threshold scale for computed speed index
-// This is the same scale as used in the CMP express dashboard for speed index, 
-// augmented with domain and range values for 'No Data'
-var speed_index_scale = d3.scaleThreshold()
-							.domain([0.400, 0.500, 0.700, 0.900, Infinity])
-							.range([ "gray", 
-							        "rgba(230, 0, 169,0.9)", "rgba(169, 0, 230,0.9)", "rgba(0, 112, 255,0.9)", 
-	                                "rgba(115, 178, 255,0.9)", "rgba(190, 210, 255,0.9)"]);
-
-var speed_index_legend_labels = ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'];
-
 
 // Utility functions to parse speed data
 //
@@ -111,7 +80,7 @@ function get_speed(d) {
 	speed = parseFloat(d.speed);
 	cvalue = parseFloat(d.cvalue);
 	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = NO_DATA;
+		retval = csCommon.NO_DATA;
 		// console.log('Mapping ' + temp + ' to NO_DATA.');
 	} else {
 		retval = speed;
@@ -130,7 +99,7 @@ function get_speed_index(d) {
 	speed = parseFloat(d.speed);
 	cvalue = parseFloat(d.cvalue);
 	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = NO_DATA;
+		retval = csCommon.NO_DATA;
 	} else {
 		tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
 		spd_limit = tmc_rec['spd_limit'];
@@ -139,7 +108,6 @@ function get_speed_index(d) {
 	}
 	return retval;
 }
-
 
 // Utility function which, given an INIRX format date (yyyy-mm-dd) string, 
 // returns a US-style date string
@@ -239,10 +207,10 @@ function get_and_render_data_for_date(route, date_ix) {
 			.attr("fill", function(d,i) { 
 							var retval;
 							if (display_mode === 'speed') {
-								retval = speed_scale(get_speed(d));
+								retval = csCommon.speed_scale(get_speed(d));
 							} else {
 								// display_mode === 'speed_index'
-								retval = speed_index_scale(get_speed_index(d)); 
+								retval = csCommon.speed_index_scale(get_speed_index(d)); 
 							}
 							return retval;
 						});
@@ -312,7 +280,6 @@ function init_viz_for_route(route) {
 					.attr("font-size", 10)
 					.text(function(d, i) { return d.firstnm; });
 					
-					
 		var first_date = config_data.dates[0].value;
 		var speed_csv_fn = "data/speed/" + current_route + "/" + current_route + "_" + first_date + ".csv";
 		
@@ -358,7 +325,7 @@ function init_viz_for_route(route) {
 									tmp = 'tmc: ' + d.tmc + '\n';
 									tmp += csCommon.format_time(d.time) + '\n';
 									tmp += 'speed: ';
-									tmp +=  (d.speed !== NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
+									tmp +=  (d.speed !== csCommon.NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
 									return tmp; 
 								});
 		});
@@ -421,12 +388,11 @@ function initialize() {
 		// of data is read in and rendered.
 		$('#restrict_cvalue').change(function(e) {
 			if (e.target.checked === true) {
-				min_cvalue = DEFAULT_CVALUE;
+				min_cvalue = csCommon.DEFAULT_CVALUE;
 			} else {
 				min_cvalue = 0.0;
 			}
 		});
-
 
 		// Generate SVG legends for speed and speed index,
 		// and hide the one for speed index at init time.
@@ -440,10 +406,10 @@ function initialize() {
 			.attr("transform", "translate(170,20)");
 		var speed_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(speed_legend_labels)
+			.labels(csCommon.speed_legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
-			.scale(speed_scale);
+			.scale(csCommon.speed_scale);
 		svg_leg_speed.select(".legendQuant")
 			.call(speed_legend);
 			
@@ -457,15 +423,14 @@ function initialize() {
 			.attr("transform", "translate(170,20)");
 		var speed_index_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(speed_index_legend_labels)
+			.labels(csCommon.speed_index_legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
-			.scale(speed_index_scale);
+			.scale(csCommon.speed_index_scale);
 		svg_leg_speed_index.select(".legendQuant")
 			.call(speed_index_legend);
 			
 		$('#speed_index_legend_div').hide();
-
 
 		// Generate the framework for the main SVG visualization, including the (invariant) X-axis
 		svg = d3.select("#viz_div")
@@ -498,7 +463,6 @@ function initialize() {
 		var tid  = setTimeout(function() { get_and_render_data_for_date(route, 0); }, 500);
 		timer_ids.push(tid);
 	});
-	
 } // initialize()
 
 initialize();
