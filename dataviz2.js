@@ -94,22 +94,9 @@ var speed_index_scale = d3.scaleThreshold()
 var speed_index_legend_labels = ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'];
 
 
-// Utility functions used to parse timestamp and speed data
+// Utility functions to parse speed data
 //
-// # 1 - Function to parse timestamp 
-// Format of INRIX timestamp is yyyy-mm-dd hh:mm:ss
-// Note: space between 'dd' and 'mm'.
-// Return object with hour and minute, both as integers.
-//
-function get_time_from_timestamp(tstamp) {
-	var hms, hr, min;
-	hms = tstamp.split(' ')[1].split(':');
-	hr = +hms[0];
-	min = +hms[1];
-	return { 'hr' : hr, 'min' : min };
-}
-
-// #2 - Function to 'safely' parse and return speed value.
+// #1 - Function to 'safely' parse and return speed value.
 //
 // Speed data may be missing in some records.
 // When this is the case record this explicitly with the NO_DATA value,
@@ -133,7 +120,7 @@ function get_speed(d) {
 	return retval;
 } 
 
-// #3 - Function to 'safely' parse speed and spd_limit values, 
+// #2 - Function to 'safely' parse speed and spd_limit values, 
 //      and compute and return speed index.
 // See comments on preceeding function.
 //
@@ -153,17 +140,6 @@ function get_speed_index(d) {
 	return retval;
 }
 
-// Utility function to format 'time' values for on-hover output
-//
-function format_time(time) {
-	var hour, minute, suffix, retval;
-	suffix = (time['hr'] < 12) ? 'a.m.' : 'p.m.';
-	hour = (time['hr'] <= 12) ? time['hr'] : time['hr'] - 12;
-	hour = (hour === 0) ? 12 : hour;
-	minute = (time['min'] < 10) ? '0' + time['min'] : time['min'];
-	retval = hour + ':' + minute + ' ' + suffix;
-	return retval;
-}
 
 // Utility function which, given an INIRX format date (yyyy-mm-dd) string, 
 // returns a US-style date string
@@ -200,7 +176,7 @@ function get_and_render_data_for_date(route, date_ix) {
 	d3.csv(speed_csv_fn, function(d) {
 	return {
 		tmc : 	d.tmc,
-		time: 	get_time_from_timestamp(d.tstamp),
+		time: 	csCommon.get_time_from_timestamp(d.tstamp),
 		speed:	get_speed(d)
 		};
 	}).then(function(data) {
@@ -343,7 +319,7 @@ function init_viz_for_route(route) {
 		d3.csv(speed_csv_fn, function(d) {
 			return {
 				tmc : 	d.tmc,
-				time: 	get_time_from_timestamp(d.tstamp),
+				time: 	csCommon.get_time_from_timestamp(d.tstamp),
 				speed:	get_speed(d),
 				cvalue:	d.cvalue
 				};
@@ -380,7 +356,7 @@ function init_viz_for_route(route) {
 							.text(function(d,i) { 
 									var tmp; 
 									tmp = 'tmc: ' + d.tmc + '\n';
-									tmp += format_time(d.time) + '\n';
+									tmp += csCommon.format_time(d.time) + '\n';
 									tmp += 'speed: ';
 									tmp +=  (d.speed !== NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
 									return tmp; 
