@@ -44,7 +44,7 @@
 		
 		// get_speed - Function to 'safely' parse and return speed value.
 		//
-		// Speed data may be missing in some records.
+		// Speed data and/or a cvalue may be missing in some records.
 		// When this is the case record this explicitly with the NO_DATA value,
 		// so scale and legend functions can work w/o requiring hacks.
 		// We also do not use records with a cvalue less than 75.0, setting
@@ -55,11 +55,7 @@
 							var retval, speed, cvalue;
 							speed = parseFloat(d.speed);
 							cvalue = parseFloat(d.cvalue);
-							if (isNaN(cvalue)) {
-								// Ugh... we have to test for this also...
-								var _DEBUG_HOOK = 0;
-							}
-							if (isNaN(speed) || cvalue < min_cvalue) {
+							if (isNaN(speed) || isNaN(cvalue) || cvalue < min_cvalue) {
 								retval = _NO_DATA;
 								// console.log('Mapping ' + temp + ' to NO_DATA.');
 							} else {
@@ -77,11 +73,7 @@
 							var retval, speed, cvalue, tmc_rec, spd_limit;
 							speed = parseFloat(d.speed);
 							cvalue = parseFloat(d.cvalue);
-							if (isNaN(cvalue)) {
-								// Ugh... we have to test for this also...
-								var _DEBUG_HOOK = 0;
-							}
-							if (isNaN(speed) || cvalue < min_cvalue) {
+							if (isNaN(speed) || isNan(cvalue) || cvalue < min_cvalue) {
 								retval = _NO_DATA;
 							} else {
 								tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });

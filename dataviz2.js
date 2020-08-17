@@ -63,52 +63,6 @@ var timer_ids = [];
 // One new frame of visualization is rendered every 3000 milliseconds (3 seconds).
 var FRAME_INTERVAL = 3000;
 
-// Utility functions to parse speed data
-//
-// #1 - Function to 'safely' parse and return speed value.
-//
-// Speed data may be missing in some records.
-// When this is the case record this explicitly with the NO_DATA value,
-// so scale and legend functions can work w/o requiring hacks.
-// We also do not use records with a cvalue less than 75.0, setting
-// their value to NO_DATA for purposes of generating the visualization.
-//
-function get_speed(d) {
-	/// var temp_str = 'Entering get_speed. TMC = ' + d.tmc;
-	// console.log('Entering get_speed; min_cvalue = ' + min_cvalue);
-	var retval, speed, cvalue;
-	speed = parseFloat(d.speed);
-	cvalue = parseFloat(d.cvalue);
-	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = csCommon.NO_DATA;
-		// console.log('Mapping ' + temp + ' to NO_DATA.');
-	} else {
-		retval = speed;
-	}
-	// console.log(temp_str + ' retval = ' + retval);
-	return retval;
-} 
-
-// #2 - Function to 'safely' parse speed and spd_limit values, 
-//      and compute and return speed index.
-// See comments on preceeding function.
-//
-function get_speed_index(d) {
-	// console.log('Entering get_speed_index; min_cvalue = ' + min_cvalue);
-	var retval, speed, cvalue, tmc_rec, spd_limit;
-	speed = parseFloat(d.speed);
-	cvalue = parseFloat(d.cvalue);
-	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = csCommon.NO_DATA;
-	} else {
-		tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-		spd_limit = tmc_rec['spd_limit'];
-		temp = speed / spd_limit;
-		retval = temp;
-	}
-	return retval;
-}
-
 // Utility function which, given an INIRX format date (yyyy-mm-dd) string, 
 // returns a US-style date string
 //
@@ -145,7 +99,8 @@ function get_and_render_data_for_date(route, date_ix) {
 	return {
 		tmc : 	d.tmc,
 		time: 	csCommon.get_time_from_timestamp(d.tstamp),
-		speed:	get_speed(d)
+		speed:	csCommon.get_speed(d, min_cvalue),
+		cvalue:	(d.cvalue == null) ? csCommon.NO_DATA : +d.cvalue	// Yes, sometimes the cvalue field is empty... :-(
 		};
 	}).then(function(data) {
 		if (route !== current_route) return;
@@ -205,12 +160,14 @@ function get_and_render_data_for_date(route, date_ix) {
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
 			.attr("fill", function(d,i) { 
-							var retval;
+							var tmp, retval;
 							if (display_mode === 'speed') {
-								retval = csCommon.speed_scale(get_speed(d));
+								tmp = csCommon.get_speed(d, min_cvalue);
+								retval = csCommon.speed_scale(tmp);
 							} else {
 								// display_mode === 'speed_index'
-								retval = csCommon.speed_index_scale(get_speed_index(d)); 
+								tmp = csCommon.get_speed_index(d, min_cvalue);
+								retval = csCommon.speed_index_scale(tmp); 
 							}
 							return retval;
 						});
@@ -287,8 +244,8 @@ function init_viz_for_route(route) {
 			return {
 				tmc : 	d.tmc,
 				time: 	csCommon.get_time_from_timestamp(d.tstamp),
-				speed:	get_speed(d),
-				cvalue:	d.cvalue
+				speed:	csCommon.get_speed(d, min_cvalue),
+				cvalue:	(d.cvalue == null) ? csCommon.NO_DATA : +d.cvalue	// Yes, sometimes the cvalue field is empty... :-(
 				};
 			}).then(function(data) {
 				var first_speed_data = data;

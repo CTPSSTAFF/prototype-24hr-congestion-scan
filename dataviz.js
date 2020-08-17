@@ -53,49 +53,6 @@ var display_mode = 'speed';
 //
 var min_cvalue = csCommon.DEFAULT_CVALUE;
 
-// Utility functions to parse speed data
-//
-// #1 - Function to 'safely' parse and return speed value.
-//
-// Speed data may be missing in some records.
-// When this is the case record this explicitly with the NO_DATA value,
-// so scale and legend functions can work w/o requiring hacks.
-// We also do not use records with a cvalue less than 75.0, setting
-// their value to NO_DATA for purposes of generating the visualization.
-//
-function get_speed(d) {
-	/// var temp_str = 'Entering get_speed. TMC = ' + d.tmc;
-	var retval, speed, cvalue;
-	speed = parseFloat(d.speed);
-	cvalue = parseFloat(d.cvalue);
-	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = csCommon.NO_DATA;
-		// console.log('Mapping ' + temp + ' to NO_DATA.');
-	} else {
-		retval = speed;
-	}
-	// console.log(temp_str + ' retval = ' + retval);
-	return retval;
-}
-
-// #2 - Function to 'safely' parse speed and spd_limit values, 
-//      and compute and return speed index.
-// See comments on preceeding function.
-//
-function get_speed_index(d) {
-	var retval, speed, cvalue, tmc_rec, spd_limit;
-	speed = parseFloat(d.speed);
-	cvalue = parseFloat(d.cvalue);
-	if (isNaN(speed) || cvalue < min_cvalue) {
-		retval = csCommon.NO_DATA;
-	} else {
-		tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
-		spd_limit = tmc_rec['spd_limit'];
-		temp = speed / spd_limit;
-		retval = temp;
-	}
-	return retval;
-}
 
 // Utility function to convert a "US-style" date string into a "yyyy-mm-dd" format date string,
 // the date format used internally by this app, and return it.
@@ -213,7 +170,7 @@ function generate_viz(route, date) {
 				tmc : 	d.tmc,
 				tstamp:	d.tstamp, // for development+debug
 				time: 	csCommon.get_time_from_timestamp(d.tstamp),
-				speed:	get_speed(d),
+				speed:	csCommon.get_speed(d, min_cvalue),
 				cvalue:	(d.cvalue == null) ? csCommon.NO_DATA : +d.cvalue	// Yes, sometimes the cvalue field is empty... :-(
 				};
 			}).then(function(data) {
@@ -314,12 +271,14 @@ function symbolize_viz(display_mode) {
 	// console.log('Entering symbolize_viz.');
 	grid_g.selectAll("rect.cell")
 			.attr("fill", function(d,i){ 
-							var retval;
+							var tmp, retval;
 							if (display_mode === 'speed') {
-								retval = csCommon.speed_scale(get_speed(d));
+								tmp =csCommon.get_speed(d, min_cvalue);
+								retval = csCommon.speed_scale(tmp);
 							} else {
 								// display_mode === 'speed_index'
-								retval = csCommon.speed_index_scale(get_speed_index(d)); 
+								tmp = csCommon.get_speed_index(d, min_cvalue);
+								retval = csCommon.speed_index_scale(tmp); 
 							}
 							return retval;
 						});
