@@ -1,0 +1,7 @@
+tmc,seq_num,from_meas,to_meas,distance,route_id,seg_begin,seg_end,spd_limit,firstnm
+129+04613,0,12.90973104,14.70267286,1.788868902,I290 EB,West of Exit 24,Exit 24,65,Church St/Exit 24
+129P04613,1,14.70267286,15.06016251,0.356133022,I290 EB,Church St/Exit 24,Church St/Exit 24,65,Church St/Exit 24
+129+04614,2,15.06016251,17.67009963,2.60502651,I290 EB,Church St/Exit 24,Solomon Pond Rd/Exit 25,65,Solomon Pond Rd/Exit 25
+129P04614,3,17.67009963,18.17035686,0.498930622,I290 EB,Solomon Pond Rd/Exit 25,Solomon Pond Rd/Exit 25,65,Solomon Pond Rd/Exit 25
+129+04615,4,18.17035686,19.69287969,1.519956336,I290 EB,Solomon Pond Rd/Exit 25,I-495/Exit 26,65,I-495/Exit 26
+129P04615,5,19.69287969,20.02000002,0.357441164,I290 EB,I-495/Exit 26,I-495/Exit 26,45,I-495/Exit 26
