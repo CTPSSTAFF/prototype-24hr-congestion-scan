@@ -7,7 +7,7 @@ Congestion scans may be generated in either static or animated form:
 over all days for which data is available and has been donwnloaded and processed for use in this app.
 
 The prototype currently supports generation of congestion scans for all days between
-March 1, 2020 and June 30, 2020.  
+January 1, 2020 and August 31, 2020.  
 But note:
 * INRIX experienced a data outage between 28 March and 2 April, 2020. Consequently:
     * No data at all is available for 29, 30, and 31 March, 2020.
@@ -16,21 +16,22 @@ But note:
 daylight savings time came into effect in 2020, and the clock "leapt forward" by 1 hour from 2:00 a.m. directly to 3:00 a.m.
 
 The prototype currently supports generation of congestion scans for the following routes:
-* I-90 EB and WB in MA between I-495 and Boston
+* I-90 EB and WB (entire route in MA)
 * I-93 NB and SB (entire route in MA)
 * I-95 NB and SB (entire route in MA)
+* I-290 EB and WB (entire route in MA)
 * I-495 NB and SB (entire rotue in MA)
 * US-1 NB and SB between I-93 and Peabody
 * US-3 NB and SB between I-95 and the New Hampshire state line
 * US-44 EB and WB (express highway portion of the route)
 * MA SR-2 EB and WB within the CTPS model region
 * MA SR-3 NB and SB (express highway portion of the route south of I-95)
+* MA SR-24 NB and SB (entire route in MA)
 * MA SR-128 NB and SB (express highway portion of the route not coincident with I-95)
 * MA SR-140 NB and SB (express highway portion of the route)
 * MA SR-146 NB and SB (express highway portion of the route)
 * MA SR-213 EB and WB
-* MA SR-24 NB and SB within the CTPS model region
-* The Lowell connector NB and SB (MA SR N087 and NA SR N482)
+* The Lowell connector NB and SB (MA SR N087 NB and NA SR N482  SB)
 
 Data source: [INRIX](https://inrix.com) speed and travel time data provided through [RITIS](https://ritis.org).   
 The raw data downloaded from INRIX required some post-processing to transform it into a form readily usable 
