@@ -31,7 +31,7 @@ The prototype currently supports generation of congestion scans for the followin
 * MA SR-140 NB and SB (express highway portion of the route)
 * MA SR-146 NB and SB (express highway portion of the route)
 * MA SR-213 EB and WB
-* The Lowell connector NB and SB (MA SR N087 NB and NA SR N482  SB)
+* The Lowell connector NB and SB (MA SR N087 NB and MA SR N482 SB)
 
 Data source: [INRIX](https://inrix.com) speed and travel time data provided through [RITIS](https://ritis.org).   
 The raw data downloaded from INRIX required some post-processing to transform it into a form readily usable 
