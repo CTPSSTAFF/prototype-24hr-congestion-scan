@@ -3,8 +3,10 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Congestion from January 1 to August 31, 2020</title>
+		<link rel="stylesheet" href="libs/jquery-ui-1.12.1/jquery-ui.css"/>
 		<link rel="stylesheet" href="dataviz2.css"/>
 		<script src="libs/jquery.min-3.5.1.js"></script>
+		<script src="libs/jquery-ui-1.12.1/jquery-ui.js"></script>
 		<script src="libs/lodash.js"></script>
 		<script src="libs/d3.js"></script>
 		<script src="libs/d3-legend-2.25.6.js"></script>
@@ -20,24 +22,41 @@
 			</a>
 		</div>
 	</div>
+		<div id="app_caption_wrapper">
 		<span>
 			<span id="app_caption_generic" class="app_caption">Congestion from January 1 to August 31, 2020&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp;Data for</span>
 			<span id="app_caption_date" class="app_caption"></span>
 		</span>
-		<div id="options">
-			<span>
-				Select route:&nbsp;
-				<select id="select_route">
-					 <option value="0">Select a route</option> 
-				</select>
-				&nbsp;&nbsp;Select Metric:
-				&nbsp;Speed:&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
-				&nbsp;Speed Index:&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
-				
-				&nbsp;
-				<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
-                <label for="restrict_cvalue">Only use data with C-value >= 75</label>
-			</span>
+		</div>
+		<div id="options_wrapper">
+			<div class="options">
+				<span>
+					Route:&nbsp;
+					<select id="select_route">
+						 <option value="0">Select a route</option> 
+					</select>
+					Metric:
+					&nbsp;Speed&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
+					&nbsp;Speed Index&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
+					&nbsp;
+					<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
+					<label for="restrict_cvalue">Only use data with C-value >= 75</label>
+				</span>
+			</div>
+			<div class="options">
+				<span>
+
+					
+					Start date:&nbsp;
+					<input type="text" id="datepicker_start" class="datepicker">		<!-- jQueryUI datepicker control -->
+					
+					End date:&nbsp; 
+					<input type="text" id="datepicker_end" class="datepicker">		<!-- jQueryUI datepicker control -->
+				</span>
+				<input type="button" id="start_button" value="Start">
+				<input type="button" id="stop_button" value="Stop" disabled>
+			</div>
+
 		</div>
 		<div id="speed_legend_div"></div>
 		<div id="speed_index_legend_div"></div>
