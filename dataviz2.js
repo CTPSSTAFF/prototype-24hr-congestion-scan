@@ -163,7 +163,6 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
-		
 			.attr("class", "cell")
 			.attr("x", function(d,i) { 
 					var hr = d.time['hr'], min = d.time['min'];
@@ -178,9 +177,7 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 					})
 			.attr("width", cell_w)
 			.attr("height", cell_h)
-		
 			.attr("fill", function(d,i) { 
-							var _DEBUG_HOOK = 0;
 							var tmp, retval;
 							if (display_mode === 'speed') {
 								tmp = csCommon.get_speed(d, min_cvalue);
