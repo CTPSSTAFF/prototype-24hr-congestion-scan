@@ -163,7 +163,24 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
+		
+			.attr("class", "cell")
+			.attr("x", function(d,i) { 
+					var hr = d.time['hr'], min = d.time['min'];
+					var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
+					return tmp;
+				})
+			.attr("y", function(d,i) { 
+						var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+						var tmc_seq = tmc_rec['seq_num'];
+						var tmp = tmc_seq * cell_h;
+						return tmp;
+					})
+			.attr("width", cell_w)
+			.attr("height", cell_h)
+		
 			.attr("fill", function(d,i) { 
+							var _DEBUG_HOOK = 0;
 							var tmp, retval;
 							if (display_mode === 'speed') {
 								tmp = csCommon.get_speed(d, min_cvalue);
@@ -176,17 +193,21 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 							return retval;
 						});
 	}).then(function() {
-		
-		// var _DEBUG_HOOK = foobar; // reference error - abort refresh, for now
-		
 		var tid = setTimeout(
 					function() {
 						if (date_ix < end_date_ix) {
 							get_and_render_data_for_date(current_route, date_ix+1, end_date_ix);
+						} else {
+							// Animated visualization is done: notify user and reset start/stop buttons
+							alert('Animated visualization completed.');
+							$('#stop_button')[0].disabled = true;
+							$('#stop_button').hide();
+							$('#start_button')[0].disabled = false;
+							$('#start_button').show();
 						}
 					}, 
-			FRAME_INTERVAL);
-			timer_ids.push(tid);
+					FRAME_INTERVAL);
+				timer_ids.push(tid);
 	});
 } //get_and_render_data_for_date()
 
@@ -393,9 +414,11 @@ function initialize() {
 			init_viz_for_route(current_route);
 			var tid  = setTimeout(function() { get_and_render_data_for_date(current_route, start_date_ix, end_date_ix); }, 500);
 			timer_ids.push(tid);
-			// Disable start button, enable stop button
+			// Disable and hide start button; enable and show stop button
 			this.disabled = true;
+			$('#start_button').hide();
 			$('#stop_button')[0].disabled = false;
+			$('#stop_button').show();
 		});
 		
 		// Define on-click event handler for "stop" button
@@ -406,10 +429,14 @@ function initialize() {
 				tmp = timer_ids.pop();
 				clearTimeout(tmp);
 			}
-			// Disable stop button, and enable run button
+			// Disable and hide stop button; enable and show start button
 			this.disabled = true;
+			$('#stop_button').hide();
 			$('#start_button')[0].disabled = false;
+			$('#start_button').show();
 		});
+		
+
 
 		// Generate SVG legends for speed and speed index,
 		// and hide the one for speed index at init time.
