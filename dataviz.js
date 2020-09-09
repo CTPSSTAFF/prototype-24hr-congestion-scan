@@ -54,61 +54,6 @@ var display_mode = 'speed';
 var min_cvalue = csCommon.DEFAULT_CVALUE;
 
 
-// Utility function to convert a "US-style" date string into a "yyyy-mm-dd" format date string,
-// the date format used internally by this app, and return it.
-//
-// What we call a "US-style" date string is one in jQueryUI "datepicker" format 'MM d, yy'.
-// Note the following about the datepicker format 'MM d, yy':
-//     MM - full text of name of month, e.g., "January"
-//     d  - day of month, with NO leading zeros
-//     yy - four digit (yes, FOUR-digit) year
-// ==> There is EXACTLY one space between the month name and the day-of-month.
-// ==> There is EXACTLY one space between the comma (',') and the year
-//
-function usDateStrToAppDateStr(usDateStr) {
-	var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
-	var months = {  'January'   : '01',
-					'February'  : '02',
-					'March'     : '03',
-					'April'     : '04',
-					'May'       : '05',
-					'June'      : '06',
-					'July'      : '07',
-					'August'    : '08',
-					'September' : '09',
-					'October'   : '10',
-					'November'  : '11',
-					'December'  : '12'
-	}; 
-	
-	retval = '';
-	parts = usDateStr.split(' ');
-	moStr = parts[0];
-	dayStr = parts[1].replace(',','');
-	yrStr = parts[2];
-	outYr = yrStr;
-	outMo = months[moStr];
-	outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
-	retval = outYr + '-' + outMo + '-' + outDay;
-	return retval;
-} // usDateStrToAppDateStr()
-
-// Utility function to convert a JavaScript "Date" object into a "yyyy-mm-dd" format date string,
-// the date format used internally by this app, and return it.
-//
-function jsDateObjToAppDateStr(jsDate) {
-	var year, month, dayOfMonth, appDateStr;
-	year = jsDate.getFullYear();
-	// Remember: JS Date object months are ZERO indexed!
-	month = jsDate.getMonth() + 1;
-	month = (month < 10) ? "0" + month : month;
-	dayOfMonth = jsDate.getDate();
-	dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
-	appDateStr = year + '-' + month + '-' + dayOfMonth;
-	return appDateStr;
-} // jsDateObjToAppDateStr()
-
-
 // generate_viz - main function to generate SVG framework to visualize speed/speed-index
 //                data for a given route for a given date.
 //  1. Reads and parses the CSV file containing data about the TMCs for the given route
@@ -343,7 +288,7 @@ function initialize() {
 				
 				route = $("#select_route option:selected").attr('value');
 				current_route = route;
-				date  = usDateStrToAppDateStr(dateText);
+				date  = csCommon.usDateStrToAppDateStr(dateText);
 				current_date = date;
 				generate_viz(route, date);
 		});

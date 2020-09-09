@@ -107,6 +107,61 @@
 										minute = (time['min'] < 10) ? '0' + time['min'] : time['min'];
 										retval = hour + ':' + minute + ' ' + suffix;
 										return retval;
-									} // format_time()
+									},	// format_time()
+									
+		//
+		// usDateStrToAppDateStr:  function to convert a "US-style" date string into a "yyyy-mm-dd" format date string,
+		//                         the date format used internally by this app, and return it.
+		//
+		// Note the following about the datepicker format 'MM d, yy':
+		//     MM - full text of name of month, e.g., "January"
+		//     d  - day of month, with NO leading zeros
+		//     yy - four digit (yes, FOUR-digit) year
+		// ==> There is EXACTLY one space between the month name and the day-of-month.
+		// ==> There is EXACTLY one space between the comma (',') and the year
+		//
+		usDateStrToAppDateStr	:	function(usDateStr) {
+										var retval, parts, moStr, dayStr, yrStr, outMo, outDay, outYr;
+										var months = {  'January'   : '01',
+														'February'  : '02',
+														'March'     : '03',
+														'April'     : '04',
+														'May'       : '05',
+														'June'      : '06',
+														'July'      : '07',
+														'August'    : '08',
+														'September' : '09',
+														'October'   : '10',
+														'November'  : '11',
+														'December'  : '12'
+										}; 
+										
+										retval = '';
+										parts = usDateStr.split(' ');
+										moStr = parts[0];
+										dayStr = parts[1].replace(',','');
+										yrStr = parts[2];
+										outYr = yrStr;
+										outMo = months[moStr];
+										outDay = (+dayStr < 10) ? '0' + dayStr : dayStr;
+										retval = outYr + '-' + outMo + '-' + outDay;
+										return retval;
+									},	// usDateStrToAppDateStr()
+		
+		//							
+		// jsDateObjToAppDateStr: function to convert a JavaScript "Date" object into a "yyyy-mm-dd" 
+		// format date string, the date format used internally by this app, and return it.
+		//
+		jsDateObjToAppDateStr	:	function(jsDate) {
+										var year, month, dayOfMonth, appDateStr;
+										year = jsDate.getFullYear();
+										// Remember: JS Date object months are ZERO indexed!
+										month = jsDate.getMonth() + 1;
+										month = (month < 10) ? "0" + month : month;
+										dayOfMonth = jsDate.getDate();
+										dayOfMonth = (dayOfMonth < 10) ? "0" + dayOfMonth : dayOfMonth;
+										appDateStr = year + '-' + month + '-' + dayOfMonth;
+										return appDateStr;
+									} // jsDateObjToAppDateStr()
 	}
 })();
