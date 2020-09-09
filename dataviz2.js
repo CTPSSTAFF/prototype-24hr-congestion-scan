@@ -159,6 +159,20 @@ function get_and_render_data_for_date(route, date_ix) {
 			$('#dst_filler').remove();
 		}
 		grid_g.selectAll("rect.cell").transition().duration(1500)
+			.attr("class", "cell")
+			.attr("x", function(d,i) { 
+					var hr = d.time['hr'], min = d.time['min'];
+					var tmp = ((hr * recs_per_hour) * cell_w) + (min / minutes_per_rec) * cell_w;
+					return tmp;
+				})
+			.attr("y", function(d,i) { 
+						var tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
+						var tmc_seq = tmc_rec['seq_num'];
+						var tmp = tmc_seq * cell_h;
+						return tmp;
+					})
+			.attr("width", cell_w)
+			.attr("height", cell_h)
 			.attr("fill", function(d,i) { 
 							var tmp, retval;
 							if (display_mode === 'speed') {
