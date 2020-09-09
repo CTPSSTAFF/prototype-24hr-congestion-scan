@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Congestion from January 1 to August 31, 2020</title>
+		<link rel="stylesheet" href="dataviz2.css"/>
+		<script src="libs/jquery.min-3.5.1.js"></script>
+		<script src="libs/lodash.js"></script>
+		<script src="libs/d3.js"></script>
+		<script src="libs/d3-legend-2.25.6.js"></script>
+		<script src ="csCommon.js"></script>
+	</head>
+	<body>
+	<div class="ctpsHeader">
+		<div class="lightBlue"></div>
+		<div class="darkBlue"></div>
+		<div id="banner">
+			<a href="https://www.ctps.org/" target="_blank" title="Boston MPO">
+				<img style="height:59px" src="img/ctps_header.png" title="Opens Boston MPO website in a new window">
+			</a>
+		</div>
+	</div>
+		<span>
+			<span id="app_caption_generic" class="app_caption">Congestion from January 1 to August 31, 2020&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp;Data for</span>
+			<span id="app_caption_date" class="app_caption"></span>
+		</span>
+		<div id="options">
+			<span>
+				Select route:&nbsp;
+				<select id="select_route">
+					 <option value="0">Select a route</option> 
+				</select>
+				&nbsp;&nbsp;Select Metric:
+				&nbsp;Speed:&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
+				&nbsp;Speed Index:&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
+				
+				&nbsp;
+				<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
+                <label for="restrict_cvalue">Only use data with C-value >= 75</label>
+			</span>
+		</div>
+		<div id="speed_legend_div"></div>
+		<div id="speed_index_legend_div"></div>
+		<div id="viz_div"></div>
+		<script src="dataviz2.js"></script>
+	</body>
+</html> 
