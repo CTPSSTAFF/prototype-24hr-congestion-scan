@@ -206,8 +206,8 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 									dialogClass: "alert",
 									modal: true,
 									buttons: {
-										Ok: function() {
-											$( this ).dialog( "close" );
+										OK: function() {
+											$(this).dialog("close");
 										}
 									}
 								});
