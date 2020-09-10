@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Congestion from January 1 to August 31, 2020</title>
+		<title>Change in Congestion Over Time</title>
 		<link rel="stylesheet" href="libs/jquery-ui-1.12.1/jquery-ui.css"/>
 		<link rel="stylesheet" href="dataviz2.css"/>
 		<script src="libs/jquery.min-3.5.1.js"></script>
@@ -13,19 +13,25 @@
 		<script src ="csCommon.js"></script>
 	</head>
 	<body>
-	<div class="ctpsHeader">
-		<div class="lightBlue"></div>
-		<div class="darkBlue"></div>
-		<div id="banner">
-			<a href="https://www.ctps.org/" target="_blank" title="Boston MPO">
-				<img style="height:59px" src="img/ctps_header.png" title="Opens Boston MPO website in a new window">
-			</a>
+		<div class="ctpsHeader">
+			<div class="lightBlue"></div>
+			<div class="darkBlue"></div>
+			<div id="banner">
+				<a href="https://www.ctps.org/" target="_blank" title="Boston MPO">
+					<img style="height:59px" src="img/ctps_header.png" title="Opens Boston MPO website in a new window">
+				</a>
+			</div>
 		</div>
-	</div>
 		<div id="app_caption_wrapper">
 		<span>
-			<span id="app_caption_generic" class="app_caption">Congestion from January 1 to August 31, 2020&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp;Data for</span>
-			<span id="app_caption_date" class="app_caption"></span>
+			<span id="app_caption_generic" class="app_caption">Change in Congestion Over Time</span>
+			<span id="app_caption_specific" class="app_caption" hidden="true">
+				<span id="app_caption_specific_static" class="app_caption">
+					&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp;Data for
+				</span>
+				<span id="app_caption_specific_date" class="app_caption">
+				</span>
+			</span> <!-- app_caption_specific -->
 		</span>
 		</div>
 		<div id="options_wrapper">
@@ -53,11 +59,13 @@
 				<input type="button" id="start_button" value="Start">
 				<input type="button" id="stop_button" value="Stop" hidden="true" disabled>
 			</div>
-
 		</div>
 		<div id="speed_legend_div"></div>
 		<div id="speed_index_legend_div"></div>
 		<div id="viz_div"></div>
+		<div id="alert_dialog" title="Congestion Scan">
+            <p id="alert_dialog_content"></p>
+        </div>
 		<script src="dataviz2.js"></script>
 	</body>
 </html> 

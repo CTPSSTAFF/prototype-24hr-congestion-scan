@@ -1,6 +1,7 @@
 // Prototype application to generate an _animated_ day-by-day visualization of congestion
-// on a selected express highway in the Boston MPO region over a given list of dates.
-// The routes and dates are specified in the configuration file 'config.json'.
+// on a selected express highway in the Boston MPO region for all days between a user-specified
+// start- and end-date.
+// The available routes and dates are specified in the configuration file 'config.json'.
 //
 // Author: Ben Krepp
 
@@ -110,7 +111,7 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 		if (route !== current_route) return;
 		// console.log('Rendering data for ' + speed_csv_fn);
 		var date_text = make_date_text(date);
-		$('#app_caption_date').html(date_text);
+		$('#app_caption_specific_date').html(date_text);
 		
 		// Set legend according to display mode
 		if (display_mode === 'speed') {
@@ -192,15 +193,30 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 	}).then(function() {
 		var tid = setTimeout(
 					function() {
+						// TRACE
+						console.log('Number of <rect> elements: ' + $('rect').length);
+						
 						if (date_ix < end_date_ix) {
 							get_and_render_data_for_date(current_route, date_ix+1, end_date_ix);
 						} else {
 							// Animated visualization is done: notify user and reset start/stop buttons
-							alert('Animated visualization completed.');
+							$('#alert_dialog_content').html('Animated visualization completed.');
+							$(function() {
+								$('#alert_dialog').dialog({ 
+									dialogClass: "alert",
+									modal: true,
+									buttons: {
+										Ok: function() {
+											$( this ).dialog( "close" );
+										}
+									}
+								});
+							});
 							$('#stop_button')[0].disabled = true;
 							$('#stop_button').hide();
 							$('#start_button')[0].disabled = false;
 							$('#start_button').show();
+							$('#app_caption_specific').hide();
 						}
 					}, 
 					FRAME_INTERVAL);
@@ -310,6 +326,7 @@ function init_viz_for_route(route) {
 									tmp +=  (d.speed !== csCommon.NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
 									return tmp; 
 								});
+			$('#app_caption_specific').show();
 		});
 	});
 } // init_viz_for_route()
