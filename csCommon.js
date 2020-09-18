@@ -42,6 +42,15 @@
 
 		speed_index_legend_labels : ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'],
 		
+		// Threshold scale for delta-of-speed values
+		delta_speed_scale	:	d3.scaleThreshold()
+									.domain([-9998, -20, -10, -5, 0, 5, 10, Infinity])
+									.range([ 'gray', 
+											 '#cb181d', '#fb6a4a', '#fcae91', '#fee5d9',
+											 '#edf8e9', '#bae4b3', '#74c476', '#238b45' ]),
+
+		delta_speed_legend_labels	: [ 'No Data', '< -20', '-10', '-5', '0', '5', '10', '20', '> 20' ],
+		
 		// get_speed - Function to 'safely' parse and return speed value.
 		//
 		// Speed data and/or a cvalue may be missing in some records.

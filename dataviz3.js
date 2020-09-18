@@ -95,14 +95,14 @@ function compute_deltas(first_date_data, last_date_data) {
 			console.log(s);
 		}
 		// N.B. To be on the safe side, use the lowest cvalue
-		var retval = { 	tmc		: first.tmc,
-						cvalue 	: _.min([first.cvalue, last.cvalue]), 
-						time	: { 'hr'	:	first.time.hr,	'min'	:	first.time.min },
-						delta	: csCommon.NO_DATA 
+		var retval = { 	tmc			: first.tmc,
+						cvalue 		: _.min([first.cvalue, last.cvalue]), 
+						time		: { 'hr'	:	first.time.hr,	'min'	:	first.time.min },
+						delta_speed	: csCommon.NO_DATA 
 					};
-		retval.delta = 	(first.speed == csCommon.NO_DATA || last.speed == csCommon.NO_DATA)
-						? csCommon.NO_DATA
-						: last.speed - first.speed;
+		retval.delta_speed = 	(first.speed == csCommon.NO_DATA || last.speed == csCommon.NO_DATA)
+								? csCommon.NO_DATA
+								: last.speed - first.speed;
 		return retval;
 	});
 	var _DEBUG_HOOK = 0;
@@ -132,16 +132,20 @@ function render_delta_data(delta_data) {
 							})
 					.attr("width", cell_w)
 					.attr("height", cell_h)
-					// "Blank canvas" symbolization to start
 					.attr("fill", 	function(d,i) {
 										var retval;
-										if (d.delta === csCommon.NO_DATA) {
-											retval = "gray";
-										} else if (d.delta < 0) {
+										retval = csCommon.delta_speed_scale(d.delta_speed);
+										/* 
+										if (d.delta_speed === csCommon.NO_DATA) {
+											retval = "gray"; 
+										} else if (d.delta_speed < 0) {
 											retval = "red";
+										} else if (d.delta_speed == 0) {
+											retval = "white";
 										} else {
 											retval = "green";
 										}
+										*/
 										return retval;
 									})
 				// The following is temporary, for use during development
@@ -151,7 +155,7 @@ function render_delta_data(delta_data) {
 							tmp = 'tmc: ' + d.tmc + '\n';
 							tmp += csCommon.format_time(d.time) + '\n';
 							tmp += 'Change in speed: ';
-							tmp +=  (d.speed !== csCommon.NO_DATA) ? d.delta + ' MPH' : 'NO DATA';
+							tmp +=  (d.delta_speed !== csCommon.NO_DATA) ? d.delta_speed.toFixed(2) + ' MPH' : 'NO DATA';
 							return tmp; 
 						});
 
@@ -246,13 +250,13 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 		$('#app_caption_specific_date').html(date_text);
 		
 		// Set legend according to display mode
-		if (display_mode === 'speed') {
-			$('#speed_index_legend_div').hide();
-			$('#speed_legend_div').show();
+		if (display_mode === 'delta_speed') {
+			$('#delta_speed_index_legend_div').hide();
+			$('#delta_speed_legend_div').show();
 		} else {
-			// display_mode === 'speed_index'
-			$('#speed_legend_div').hide();
-			$('#speed_index_legend_div').show();
+			// display_mode === 'delta_speed_index'
+			$('#delta_speed_legend_div').hide();
+			$('#delta_speed_index_legend_div').show();
 		}
 		
 		// Grotesque work-around for INRIX data outage on 29-31 March 2020:
@@ -561,41 +565,43 @@ function initialize() {
 		});
 		
 
-		// Generate SVG legends for speed and speed index,
-		// and hide the one for speed index at init time.
-		var svg_leg_speed  = d3.select('#speed_legend_div')
+		// Generate SVG legends for delta-speed and delta-speed index,
+		// and hide the one for delta-speed index at init time.
+		var svg_leg_delta_speed  = d3.select('#delta_speed_legend_div')
 			.append("svg")
 			.attr("id", "legend_svg")
 			.attr("height", 70)
 			.attr("width", 1000);
-		svg_leg_speed.append("g")
+		svg_leg_delta_speed.append("g")
 			.attr("class", "legendQuant")
 			.attr("transform", "translate(170,20)");
-		var speed_legend = d3.legendColor()
+		var delta_speed_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(csCommon.speed_legend_labels)
-			.shapeWidth(100)
+			.labels(csCommon.delta_speed_legend_labels)
+			.shapeWidth(75)
 			.orient('horizontal')
-			.scale(csCommon.speed_scale);
-		svg_leg_speed.select(".legendQuant")
-			.call(speed_legend);
-			
-		var svg_leg_speed_index = d3.select('#speed_index_legend_div')
+			.scale(csCommon.delta_speed_scale);
+		svg_leg_delta_speed.select(".legendQuant")
+			.call(delta_speed_legend);
+
+/*
+		var svg_leg_delta_speed_index = d3.select('#delta_speed_index_legend_div')
 			.append("svg")
-			.attr("id", "speed_ix_legend_svg")
+			.attr("id", "delta_speed_ix_legend_svg")
 			.attr("height", 70)
 			.attr("width", 1000);
-		svg_leg_speed_index.append("g")
+		svg_leg_delta_speed_index.append("g")
 			.attr("class", "legendQuant")
 			.attr("transform", "translate(170,20)");
-		var speed_index_legend = d3.legendColor()
+		var delta_speed_index_legend = d3.legendColor()
 			.labelFormat(d3.format(".0f"))
-			.labels(csCommon.speed_index_legend_labels)
+			.labels(csCommon.delta_speed_index_legend_labels)
 			.shapeWidth(100)
 			.orient('horizontal')
-			.scale(csCommon.speed_index_scale);
-		svg_leg_speed_index.select(".legendQuant")
-			.call(speed_index_legend);
+			.scale(csCommon.delta_speed_index_scale);
+		svg_leg_delta_speed_index.select(".legendQuant")
+			.call(delta_speed_index_legend);
+*/
 			
 		$('#speed_index_legend_div').hide();
 
