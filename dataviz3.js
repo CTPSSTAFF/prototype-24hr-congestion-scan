@@ -94,10 +94,11 @@ function compute_deltas(first_date_data, last_date_data) {
 			s += '    first.time = ' + first.time  + ' and last.time = ' + last.time + '.';
 			console.log(s);
 		}
-		// N.B. To be on the safe side, use the lowest cvalue
+		// N.B. To be on the safe side, use the lower cvalue
 		var retval = { 	tmc			: first.tmc,
 						cvalue 		: _.min([first.cvalue, last.cvalue]), 
-						time		: { 'hr'	:	first.time.hr,	'min'	:	first.time.min },
+						time		: { 'hr'	:	first.time.hr,	
+										'min'	:	first.time.min },
 						delta_speed	: csCommon.NO_DATA 
 					};
 		retval.delta_speed = 	(first.speed == csCommon.NO_DATA || last.speed == csCommon.NO_DATA)
@@ -107,7 +108,7 @@ function compute_deltas(first_date_data, last_date_data) {
 	});
 	var _DEBUG_HOOK = 0;
 	return retval;
-} // 
+} // compute_deltas()
 
 function render_delta_data(delta_data) {
 			grid_g = svg.append("g")
@@ -135,17 +136,6 @@ function render_delta_data(delta_data) {
 					.attr("fill", 	function(d,i) {
 										var retval;
 										retval = csCommon.delta_speed_scale(d.delta_speed);
-										/* 
-										if (d.delta_speed === csCommon.NO_DATA) {
-											retval = "gray"; 
-										} else if (d.delta_speed < 0) {
-											retval = "red";
-										} else if (d.delta_speed == 0) {
-											retval = "white";
-										} else {
-											retval = "green";
-										}
-										*/
 										return retval;
 									})
 				// The following is temporary, for use during development
@@ -202,20 +192,15 @@ function get_2_datasets_and_render_delta(current_route, first_date_ix, last_date
 			};
 		}).then(function(data) {
 			console.log('Loading of ' + last_speed_csv_fn + ' completed.');
-			
 			last_date_data = data;
-			// Compute deltas
+			// Compute deltas, and render
 			delta_data = compute_deltas(first_date_data, last_date_data);
-			
-			// ... and render
-			// ** TBD
-			var _DEBUG_HOOK = 0;
 			render_delta_data(delta_data);
 		});
 	});
 } // get_2_datasets_and_render_delta()
 
-// *** CURRENTLY A FOSSIL - RETAINING FOR REFERENCE FOR THE TIME BEING
+// *** THIS IS CURRENTLY A FOSSIL - RETAINING FOR REFERENCE FOR THE TIME BEING ***
 //
 // Function: get_and_render_data_for_date
 //
@@ -257,27 +242,6 @@ function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 			// display_mode === 'delta_speed_index'
 			$('#delta_speed_legend_div').hide();
 			$('#delta_speed_index_legend_div').show();
-		}
-		
-		// Grotesque work-around for INRIX data outage on 29-31 March 2020:
-		if (date === '2020-03-29' || date === '2020-03-30' || date === '2020-03-31') {
-			if ($('#viz_div #data_outage').length === 0) {
-				var outage_g = svg.append("g")
-					.attr("id", "data_outage")
-					.attr("transform", "translate(" + left_margin + "," + top_margin + ")")
-					.append("rect")
-						.attr("class", "data_outage")
-						.attr("x", 0)
-						.attr("y", 0)
-						.attr("width", num_time_recs*cell_w)
-						.attr("height", top_margin + (cell_h * num_tmcs))
-						.attr("fill", "gray");
-			}
-			// Once we've inserted this 24-hour hack, there's nothing more to do: return.
-			return;
-		} else if ($('#viz_div #data_outage').length > 0) {
-			// Date is not 29-31 March 2020; if #data_outage hack is present, remove it
-			$('#viz_div #data_outage').remove();
 		}
 		
 		// Get on with the business of rendering real data.
@@ -471,9 +435,10 @@ function init_viz_for_route(route) {
 // Summary: 
 //	1. Read configuration file
 //  2. Populate select box for route, and define on-change event handler for it
-//  3. Generate "invariant" parts of SVG framework, e.g., X-axis (time axis)
-//  4. Call init_viz_for_route and get_and_render_data_for_date to 
-//     kick off the animated visualization
+//  3. Configure datepicker controls for first- and last-date
+//  4. Define event handlers for restrict_cvalue option
+//  5. Define on-click event hanlder for run button
+//  6. Generate "invariant" parts of SVG framework, e.g., X-axis (time axis)
 //
 function initialize() {
 	d3.json("config.json").then(function(config) {
@@ -490,6 +455,11 @@ function initialize() {
 			}
             oSelect.options.add(oOption); 
         }
+		// Define on-change event handler for select box
+		$('#select_route').change(function(e) {
+			current_route = $("#select_route option:selected").attr('value');
+		});
+		current_route = 'i93_nb';
 
 		// Configure datepicker controls (replacement for select_date combo box).
 		// Note: The "month" in JS a Date object is zero-indexed.
@@ -523,48 +493,48 @@ function initialize() {
 					last_date = date;
 				}
 		});
-
-		// Define on-change event handler for select box
-		$('#select_route').change(function(e) {
-			current_route = $("#select_route option:selected").attr('value');
-		});
-		current_route = 'i93_nb';
 		
 		// Define on-change event handler for "display mode" radio buttons.
-		// Note that this merely caches the newly specified display mode;
-		// the change is not reflected until the next day's worth of data
-		// is read in and rendered.
+		/*
 		$('.mode').change(function(e) {
 			display_mode = $("input[name='mode']:checked").val();
 		});
+		*/
 		
-		// Define on-change event handler for "restrict_cvalue" checkbox.
-		// Note that this merely caches the new minimum cvalue;
-		// the change is not reflected until the next day's worth
-		// of data is read in and rendered.
+		// Define on-change event handler for "restrict_cvalue" checkbox
 		$('#restrict_cvalue').change(function(e) {
 			if (e.target.checked === true) {
 				min_cvalue = csCommon.DEFAULT_CVALUE;
 			} else {
 				min_cvalue = 0.0;
 			}
+			// If a sledgehammer is available, wield it...
+			$('#run_button').click();
 		});
 		
 		// Define on-click event handler for "run" button
 		$('#run_button').click(function(e) {
+			var first_date_ix, last_date_ix, bad_first, bad_last, msg;
 			// Check that end_date is > than start_date
-			var first_date_ix = _.findIndex(config_data.dates, function(rec) { return rec.value === first_date; }),
-			    last_date_ix   = _.findIndex(config_data.dates, function(rec) { return rec.value === last_date; });
+			first_date_ix = _.findIndex(config_data.dates, function(rec) { return rec.value === first_date; });
+			last_date_ix   = _.findIndex(config_data.dates, function(rec) { return rec.value === last_date; });
 			if (last_date_ix < first_date_ix) {
-				var msg = 'Second date (' + last_date + ') is earlier than first date (' + first_date + ').';
+				msg = 'Second date (' + last_date + ') is earlier than first date (' + first_date + ').';
 				alert(msg);
 				return;
 			}
+			// Check that neither the start date nor end date is one affected by the INRIX data outage	
+			bad_first = (first_date == '2020-03-29' || first_date == '2020-03-30' || first_date == '2020-03-31') ? true : false;
+			bad_last = (last_date == '2020-03-29' || last_date == '2020-03-30' || last_date == '2020-03-31') ? true : false;
+			if (bad_first || bad_last) {
+				msg = 'Data not available for first and/ or last date. Re-run with other date(s).'
+				alert(msg);
+				return;
+		    }	
 			init_viz_for_route(current_route);
 			get_2_datasets_and_render_delta(current_route, first_date_ix, last_date_ix);
 		});
 		
-
 		// Generate SVG legends for delta-speed and delta-speed index,
 		// and hide the one for delta-speed index at init time.
 		var svg_leg_delta_speed  = d3.select('#delta_speed_legend_div')
