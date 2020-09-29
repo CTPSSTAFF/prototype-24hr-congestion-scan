@@ -34,21 +34,31 @@
 
 /* Rules for app itself */
 
-#datepicker {
+.datepicker {
 	width: 125px;
 }
 
-#options {
+.options {
 	margin-bottom: 10px;
 }
 
-.app_caption {
+#app_caption_wrapper {
 	font-size: 24px;
 	font-weight: bold;
+	margin-bottom: 10px;
 }
 
-#app_caption_date {
+#app_caption_specific_date {
 	color: rgb(255,0,0);
+}
+
+#start_button {
+	color: rgb(0,0,0);
+	background-color: rgb(0,255,0);
+}
+#stop_button {
+	color: rgb(0,0,0);
+	background-color: rgb(255,0,0);
 }
 
 

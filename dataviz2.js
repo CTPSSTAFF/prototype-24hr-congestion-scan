@@ -1,6 +1,7 @@
 // Prototype application to generate an _animated_ day-by-day visualization of congestion
-// on a selected express highway in the Boston MPO region over a given list of dates.
-// The routes and dates are specified in the configuration file 'config.json'.
+// on a selected express highway in the Boston MPO region for all days between a user-specified
+// start- and end-date.
+// The available routes and dates are specified in the configuration file 'config.json'.
 //
 // Author: Ben Krepp
 
@@ -10,8 +11,12 @@ var config_data = [];
 // Data stores for TMC and speed data read in
 var tmc_data = [],
     speed_data = [];
-var current_route = '',
-    current_date = '';
+var current_route = 'i93_nb',
+    current_date = '',
+	start_date = '2020-01-01';
+	end_date = '2020-08-31',
+	default_start_date = '2020-03-01',
+	default_end_date = '2020-06-30';
 
 // Placholder value - populated with actual number of TMCs for route by initialize_for_route
 var num_tmcs = 100;
@@ -89,7 +94,7 @@ function make_date_text(date) {
 // has been completed, get_and_render_data_for_date is called for each
 // day's worth of data to be rendered.
 //
-function get_and_render_data_for_date(route, date_ix) {
+function get_and_render_data_for_date(route, date_ix, end_date_ix) {
 	if (route !== current_route) return;
 	var date, speed_csv_fn;
 	date = config_data['dates'][date_ix].value;
@@ -106,7 +111,7 @@ function get_and_render_data_for_date(route, date_ix) {
 		if (route !== current_route) return;
 		// console.log('Rendering data for ' + speed_csv_fn);
 		var date_text = make_date_text(date);
-		$('#app_caption_date').html(date_text);
+		$('#app_caption_specific_date').html(date_text);
 		
 		// Set legend according to display mode
 		if (display_mode === 'speed') {
@@ -188,12 +193,34 @@ function get_and_render_data_for_date(route, date_ix) {
 	}).then(function() {
 		var tid = setTimeout(
 					function() {
-						if (date_ix < config_data['dates'].length - 1) {
-							get_and_render_data_for_date(current_route, date_ix+1);
+						// TRACE
+						console.log('Number of <rect> elements: ' + $('rect').length);
+						
+						if (date_ix < end_date_ix) {
+							get_and_render_data_for_date(current_route, date_ix+1, end_date_ix);
+						} else {
+							// Animated visualization is done: notify user and reset start/stop buttons
+							$('#alert_dialog_content').html('Animated visualization completed.');
+							$(function() {
+								$('#alert_dialog').dialog({ 
+									dialogClass: "alert",
+									modal: true,
+									buttons: {
+										OK: function() {
+											$(this).dialog("close");
+										}
+									}
+								});
+							});
+							$('#stop_button')[0].disabled = true;
+							$('#stop_button').hide();
+							$('#start_button')[0].disabled = false;
+							$('#start_button').show();
+							$('#app_caption_specific').hide();
 						}
 					}, 
-			FRAME_INTERVAL);
-			timer_ids.push(tid);
+					FRAME_INTERVAL);
+				timer_ids.push(tid);
 	});
 } //get_and_render_data_for_date()
 
@@ -299,6 +326,7 @@ function init_viz_for_route(route) {
 									tmp +=  (d.speed !== csCommon.NO_DATA) ? d.speed + ' MPH' : 'NO DATA';
 									return tmp; 
 								});
+			$('#app_caption_specific').show();
 		});
 	});
 } // init_viz_for_route()
@@ -327,23 +355,44 @@ function initialize() {
             oSelect.options.add(oOption); 
         }
 
-		// Define event handler for select box
-		$('#select_route').change(function(e) {
-			var route;
-			route = $("#select_route option:selected").attr('value');
-			current_route = route;
-			init_viz_for_route(route);
-			// Read and render the data for individual days for the selected route.
-			// Kick this off by reading and rendering the data for the first day (index === 0)
-			// First, kill any pending timers from the previously selected route.
-			var tmp;
-			while (timer_ids.length > 0) {
-				tmp = timer_ids.pop();
-				clearTimeout(tmp);
-			}
-			var tid = setTimeout(function() { get_and_render_data_for_date(current_route, 0); }, 1500);
-			timer_ids.push(tid);
+		// Configure datepicker controls (replacement for select_date combo box).
+		// Note: The "month" in JS a Date object is zero-indexed.
+		$('.datepicker').datepicker({ dateFormat: 'MM d, yy' });
+		$('.datepicker').datepicker({ showOn: "focus" });
+		var minDate = config.dates[0].text,
+		    maxDate = config.dates[config.dates.length-1].text;
+
+		$('#datepicker_start').datepicker("option", "minDate", minDate);
+		$('#datepicker_start').datepicker("option", "maxDate", config.dates[config.dates.length-2].text);
+		var default_start_ix = _.findIndex(config.dates, function(rec) { return rec.value === default_start_date; });
+		$('#datepicker_start').datepicker("option", "defaultDate", config.dates[default_start_ix].text);
+		$('#datepicker_start').datepicker( "setDate", config.dates[default_start_ix].text);
+		start_date = default_start_date;
+
+		$('#datepicker_end').datepicker("option", "minDate", config.dates[1].text);
+		$('#datepicker_end').datepicker("option", "maxDate", maxDate);
+		var default_end_ix = _.findIndex(config.dates, function(rec) { return rec.value === default_end_date; });
+		$('#datepicker_end').datepicker("option", "defaultDate", config.dates[default_end_ix].text);
+		$('#datepicker_end').datepicker( "setDate", config.dates[default_end_ix].text);
+		end_date = default_end_date;
+		
+		$('.datepicker').datepicker("option", "onClose", 
+			function(dateText, instance) {
+				var date;
+				if (dateText === "") return;
+				date  = csCommon.usDateStrToAppDateStr(dateText);
+				if (instance.id === 'datepicker_start') {
+					start_date = date;
+				} else {
+					end_date = date;
+				}
 		});
+
+		// Define on-change event handler for select box
+		$('#select_route').change(function(e) {
+			current_route = $("#select_route option:selected").attr('value');
+		});
+		current_route = 'i93_nb';
 		
 		// Define on-change event handler for "display mode" radio buttons.
 		// Note that this merely caches the newly specified display mode;
@@ -364,6 +413,44 @@ function initialize() {
 				min_cvalue = 0.0;
 			}
 		});
+		
+		
+		// Define on-click event handler for "start" button
+		$('#start_button').click(function(e) {
+			// Check that end_date is > than start_date
+			var start_date_ix = _.findIndex(config_data.dates, function(rec) { return rec.value === start_date; }),
+			    end_date_ix   = _.findIndex(config_data.dates, function(rec) { return rec.value === end_date; });
+			if (end_date_ix < start_date_ix) {
+				var msg = 'End date (' + end_date + ') is earlier than start date (' + start_date + ').';
+				alert(msg);
+				return;
+			}
+			init_viz_for_route(current_route);
+			var tid  = setTimeout(function() { get_and_render_data_for_date(current_route, start_date_ix, end_date_ix); }, 500);
+			timer_ids.push(tid);
+			// Disable and hide start button; enable and show stop button
+			this.disabled = true;
+			$('#start_button').hide();
+			$('#stop_button')[0].disabled = false;
+			$('#stop_button').show();
+		});
+		
+		// Define on-click event handler for "stop" button
+		$('#stop_button').click(function(e) {
+			// Kill any/all pending timers 
+			var tmp;
+			while (timer_ids.length > 0) {
+				tmp = timer_ids.pop();
+				clearTimeout(tmp);
+			}
+			// Disable and hide stop button; enable and show start button
+			this.disabled = true;
+			$('#stop_button').hide();
+			$('#start_button')[0].disabled = false;
+			$('#start_button').show();
+		});
+		
+
 
 		// Generate SVG legends for speed and speed index,
 		// and hide the one for speed index at init time.
@@ -427,12 +514,6 @@ function initialize() {
 				$(xTickLabels[i]).html(newText);
 			}
 		}
-		
-		// Initialize visualization for I-93 NB
-		var route = 'i93_nb';
-		init_viz_for_route(route);
-		var tid  = setTimeout(function() { get_and_render_data_for_date(route, 0); }, 500);
-		timer_ids.push(tid);
 	});
 } // initialize()
 

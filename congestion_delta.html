@@ -2,9 +2,9 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Change in Congestion Over Time</title>
+		<title>Change in Congestion Between Two Dates</title>
 		<link rel="stylesheet" href="libs/jquery-ui-1.12.1/jquery-ui.css"/>
-		<link rel="stylesheet" href="dataviz2.css"/>
+		<link rel="stylesheet" href="dataviz3.css"/>
 		<script src="libs/jquery.min-3.5.1.js"></script>
 		<script src="libs/jquery-ui-1.12.1/jquery-ui.js"></script>
 		<script src="libs/lodash.js"></script>
@@ -24,7 +24,7 @@
 		</div>
 		<div id="app_caption_wrapper">
 		<span>
-			<span id="app_caption_generic" class="app_caption">Change in Congestion Over Time</span>
+			<span id="app_caption_generic" class="app_caption">Change in Congestion Between Two Dates</span>
 			<span id="app_caption_specific" class="app_caption" hidden="true">
 				<span id="app_caption_specific_static" class="app_caption">
 					&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;&nbsp;Data for
@@ -41,9 +41,11 @@
 					<select id="select_route">
 						 <option value="0">Select a route</option> 
 					</select>
+					<!--
 					Metric:
 					&nbsp;Speed&nbsp;<input type="radio" id="mode_speed" name="mode" class="mode" value="speed" checked>
 					&nbsp;Speed Index&nbsp;<input type="radio" id="mode_speed_index" name="mode" class="mode" value="speed_index">
+					-->
 					&nbsp;
 					<input type="checkbox" id="restrict_cvalue" name="restrict_cvalue" checked>
 					<label for="restrict_cvalue">Only use data with C-value >= 75</label>
@@ -51,21 +53,17 @@
 			</div>
 			<div class="options">
 				<span>
-					Start date:&nbsp;
-					<input type="text" id="datepicker_start" class="datepicker">	<!-- jQueryUI datepicker control -->
-					End date:&nbsp; 
-					<input type="text" id="datepicker_end" class="datepicker">		<!-- jQueryUI datepicker control -->
+					First date:&nbsp;
+					<input type="text" id="datepicker_first" class="datepicker">	<!-- jQueryUI datepicker control -->
+					Last date:&nbsp; 
+					<input type="text" id="datepicker_last" class="datepicker">		<!-- jQueryUI datepicker control -->
 				</span>
-				<input type="button" id="start_button" value="Start">
-				<input type="button" id="stop_button" value="Stop" hidden="true" disabled>
+				<input type="button" id="run_button" value="Run">
 			</div>
 		</div>
-		<div id="speed_legend_div"></div>
-		<div id="speed_index_legend_div"></div>
+		<div id="delta_speed_legend_div"></div>
+		<div id="delta_speed_index_legend_div"></div>
 		<div id="viz_div"></div>
-		<div id="alert_dialog" title="Congestion Scan">
-            <p id="alert_dialog_content"></p>
-        </div>
-		<script src="dataviz2.js"></script>
+		<script src="dataviz3.js"></script>
 	</body>
 </html> 
