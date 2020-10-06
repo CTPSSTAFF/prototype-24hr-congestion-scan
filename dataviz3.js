@@ -12,7 +12,7 @@ var tmc_data = [],
     speed_data = [];
 var current_route = 'i93_nb',
 	first_date = '2020-01-01';
-	last_date = '2020-08-31',
+	last_date = '2020-09-30',
 	default_start_date = '2020-03-01',
 	default_end_date = '2020-06-30';
 
