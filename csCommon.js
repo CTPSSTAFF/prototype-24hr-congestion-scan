@@ -82,7 +82,7 @@
 							var retval, speed, cvalue, tmc_rec, spd_limit;
 							speed = parseFloat(d.speed);
 							cvalue = parseFloat(d.cvalue);
-							if (isNaN(speed) || isNan(cvalue) || cvalue < min_cvalue) {
+							if (isNaN(speed) || isNaN(cvalue) || cvalue < min_cvalue) {
 								retval = _NO_DATA;
 							} else {
 								tmc_rec = _.find(tmc_data, function(rec) { return rec.tmc == d.tmc; });
