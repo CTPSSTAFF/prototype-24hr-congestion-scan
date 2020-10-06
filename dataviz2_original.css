@@ -38,6 +38,10 @@
 	width: 125px;
 }
 
+.vendor_logo_anchor {
+    text-decoration: none;
+}
+
 #options {
 	margin-bottom: 10px;
 }

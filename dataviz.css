@@ -35,3 +35,7 @@
 #datepicker {
 	width: 125px;
 }
+
+.vendor_logo_anchor {
+    text-decoration: none;
+}

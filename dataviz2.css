@@ -42,6 +42,10 @@
 	margin-bottom: 10px;
 }
 
+.vendor_logo_anchor {
+    text-decoration: none;
+}
+
 #app_caption_wrapper {
 	font-size: 24px;
 	font-weight: bold;
