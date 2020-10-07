@@ -35,12 +35,12 @@
 		// This is the same scale as used in the CMP express dashboard for speed index, 
 		// augmented with domain and range values for 'No Data'
 		speed_index_scale : d3.scaleThreshold()
-									.domain([0.400, 0.500, 0.700, 0.900, Infinity])
+									.domain([0, 0.400, 0.500, 0.700, 0.900, Infinity])
 									.range([ "gray", 
 											"rgba(230, 0, 169,0.9)", "rgba(169, 0, 230,0.9)", "rgba(0, 112, 255,0.9)", 
 											"rgba(115, 178, 255,0.9)", "rgba(190, 210, 255,0.9)"]),
 
-		speed_index_legend_labels : ['No Data', '0.4', '0.5', '0.7', '0.9', '>0.9'],
+		speed_index_legend_labels : ['No Data', '< 0.4', '0.5', '0.7', '0.9', '> 0.9'],
 		
 		// Threshold scale for delta-of-speed values
 		delta_speed_scale	:	d3.scaleThreshold()
