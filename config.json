@@ -377,8 +377,28 @@
 					{	"value"	:	"2020-11-27", 	"text"	:	"November 27, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-11-28", 	"text"	:	"November 28, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-11-29", 	"text"	:	"November 29, 2020",	"selected"	: 	false  },
-					{	"value"	:	"2020-11-30", 	"text"	:	"November 30, 2020",	"selected"	: 	false  }
+					{	"value"	:	"2020-11-30", 	"text"	:	"November 30, 2020",	"selected"	: 	false  },
                     
-                    
+ 					{	"value"	:	"2020-12-01", 	"text"	:	"December 1, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-02", 	"text"	:	"December 2, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-03", 	"text"	:	"December 3, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-04", 	"text"	:	"December 4, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-05", 	"text"	:	"December 5, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-06", 	"text"	:	"December 6, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-07", 	"text"	:	"December 7, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-08",	"text"	:	"December 8, 2020",	"selected"	:	false  },
+					{	"value"	:	"2020-12-09",	"text"	:	"December 9, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-10",	"text"	:	"December 10, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-11",	"text"	:	"December 11, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-12",	"text"	:	"December 12, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-13",	"text"	:	"December 13, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-14",	"text"	:	"December 14, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-15",	"text"	:	"December 15, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-16",	"text"	:	"December 16, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-17",	"text"	:	"December 17, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-18",	"text"	:	"December 18, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-19",	"text"	:	"December 19, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-20",	"text"	:	"December 20, 2020",	"selected"	: 	false  }
+                   
 				]
 } 
