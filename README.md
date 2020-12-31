@@ -7,7 +7,7 @@ Congestion scans may be generated in either static or animated form:
 over a specified range of days for which data is available and has been donwnloaded and processed for use in this app.
 
 The prototype currently supports generation of congestion scans for all days between
-January 1, 2020 and August 31, 2020.  
+January 1, 2020 and December 20, 2020.  
 But note:
 * INRIX experienced a data outage between 28 March and 2 April, 2020. Consequently:
     * No data at all is available for 29, 30, and 31 March, 2020.
@@ -49,7 +49,7 @@ These files use the naming convention <MassDOT_route_id_in_lower_case>\_tmcs.csv
 
 The __data/speed_subdirectory__ contains one "speed data" file for the cross-product of all routes supported
 and all dates supported. For example, for the route id "I90 NB" there is a "speed data" file for each day
-between March 1, 2020 and June 20, 2020. These files use the 
+between March 1, 2020 and December 20, 2020. These files use the 
 naming convention <Mass_DOT_route_id_in_lower_case>\_yyyy-mm-dd, e.g., i90_eb_2020-03-01.csv.
 
 This prototype depends upon the following external libraries:
