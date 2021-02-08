@@ -33,7 +33,7 @@
                     			{	"value"	:	"n482_sb",	"text"	:	"Lowell Connector Southbound",  "selected"	: 	false }
 				],
 	"dates" :	[ 	
-                    			{	"value"	:	"2020-01-01",	"text"	:	"January 1, 2020",	    "selected"	:	false  },
+                    {	"value"	:	"2020-01-01",	"text"	:	"January 1, 2020",	    "selected"	:	false  },
 					{	"value"	:	"2020-01-02",	"text"	:	"January 2, 2020",	    "selected"	:	false  },
 					{	"value"	:	"2020-01-03",	"text"	:	"January 3, 2020",	    "selected"	:	false  },
 					{	"value"	:	"2020-01-04",	"text"	:	"January 4, 2020",	    "selected"	:	false  },
@@ -398,7 +398,17 @@
 					{	"value"	:	"2020-12-17",	"text"	:	"December 17, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-12-18",	"text"	:	"December 18, 2020",	"selected"	: 	false  },
 					{	"value"	:	"2020-12-19",	"text"	:	"December 19, 2020",	"selected"	: 	false  },
-					{	"value"	:	"2020-12-20",	"text"	:	"December 20, 2020",	"selected"	: 	false  }
-                   
+					{	"value"	:	"2020-12-20",	"text"	:	"December 20, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-21", 	"text"	:	"December 21, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-22", 	"text"	:	"December 22, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-23", 	"text"	:	"December 23, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-24", 	"text"	:	"December 24, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-25", 	"text"	:	"December 25, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-26", 	"text"	:	"December 26, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-27", 	"text"	:	"December 27, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-28", 	"text"	:	"December 28, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-29", 	"text"	:	"December 29, 2020",	"selected"	: 	false  },
+					{	"value"	:	"2020-12-30", 	"text"	:	"December 30, 2020",	"selected"	: 	false  },   
+					{	"value"	:	"2020-12-31", 	"text"	:	"December 31, 2020",	"selected"	: 	false  }
 				]
 } 
