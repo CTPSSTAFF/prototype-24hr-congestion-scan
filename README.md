@@ -57,3 +57,11 @@ This prototype depends upon the following external libraries:
 * lodash version 4.17.15
 * d3 version 5.16.0
 * d3-legend version 2.25.6 - See the [d3-legend website](https://d3-legend.susielu.com/)
+
+## Colophon
+Author: [Ben Krepp](mailto:bkrepp@ctps.org)  
+Address: Central Transportation Planning Staff, Boston Region Metropolitan Planning Agency  
+10 Park Plaza  
+Suite 2150  
+Boston, MA 02116  
+United States
