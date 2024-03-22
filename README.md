@@ -54,9 +54,24 @@ naming convention <Mass_DOT_route_id_in_lower_case>\_yyyy-mm-dd, e.g., i90_eb_20
 
 This prototype depends upon the following external libraries:
 * jQuery version 3.5.1
+* jQueryUI version 1.12.1
 * lodash version 4.17.15
 * d3 version 5.16.0
 * d3-legend version 2.25.6 - See the [d3-legend website](https://d3-legend.susielu.com/)
+
+## Running the apps
+* Clone the repository into a directory, call it 'x'
+* 'cd x'
+* python -m http.server 8888 --bind localhost
+* In a web browser:
+  * http://localhost:8888/congestion_scan.html - to generate a 'vanilla' congestion scan
+  * http://localhost:8888/congestion_over_time.html - to generate an animated congestion scan over two dates
+  * http://localhost:8888/congestion_delta.html - to generate a 'differential' congestion scan between two dates
+  
+Note: Running 'congestion_scan_over_time.html' on any major road in the Boston area 
+between March 1, 2020 and March 31, 2020 will _dramatically_ illustrate the reduction 
+in congestion \(and, thus, the traffic that causes it\) with the onset of the
+Covid-19 'lockdown' that began in Massachusetts on March 13, 2020. A great demo!
 
 ## Colophon
 Author: [Ben Krepp](mailto:bkrepp@ctps.org)  
